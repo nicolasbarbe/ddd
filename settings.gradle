@@ -1,0 +1,1 @@
+include  ':eventstore-api', ':eventstore-service', ':eventstore-client'
