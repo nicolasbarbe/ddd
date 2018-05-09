@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
-public class AbstractSingletonSearchableRepository<T extends AggregateRoot> extends AbstractRepository<T> implements SingletonSearchableRepository<T> {
+public abstract class AbstractSingletonSearchableRepository<T extends AggregateRoot> extends AbstractRepository<T> implements SingletonSearchableRepository<T> {
 
     private static final UUID SINGLETON_UUID = UUID.fromString("1");
 

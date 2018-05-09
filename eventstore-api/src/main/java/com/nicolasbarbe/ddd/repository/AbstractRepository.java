@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 import java.lang.reflect.ParameterizedType;
 import java.util.UUID;
 
-public class AbstractRepository<T extends AggregateRoot> implements Repository<T> {
+public abstract class AbstractRepository<T extends AggregateRoot> implements Repository<T> {
 
     protected EventStore eventStore;
 
