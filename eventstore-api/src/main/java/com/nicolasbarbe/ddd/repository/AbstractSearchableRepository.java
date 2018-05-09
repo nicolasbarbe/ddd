@@ -1,8 +1,8 @@
-package com.nicolasbarbe.ddd.domain;
+package com.nicolasbarbe.ddd.repository;
 
+import com.nicolasbarbe.ddd.domain.AggregateRoot;
 import com.nicolasbarbe.ddd.eventstore.EventStore;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.UUID;
 
 

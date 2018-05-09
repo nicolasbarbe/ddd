@@ -1,6 +1,7 @@
-package com.nicolasbarbe.ddd.domain;
+package com.nicolasbarbe.ddd.repository;
 
 
+import com.nicolasbarbe.ddd.domain.AggregateRoot;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;

@@ -1,5 +1,6 @@
-package com.nicolasbarbe.ddd.domain;
+package com.nicolasbarbe.ddd.repository;
 
+import com.nicolasbarbe.ddd.domain.AggregateRoot;
 import com.nicolasbarbe.ddd.eventstore.EventStore;
 import reactor.core.publisher.Mono;
 
