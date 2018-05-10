@@ -1,4 +1,5 @@
 # DDD Experimentations  
+![Codeship](https://img.shields.io/codeship/d6c1ddd0-16a3-0132-5f85-2e35c05e22b1.svg?style=flat-square)
 
 This repository contains some experiments to build a reactive event-sourced system.
 - `eventstore-api` Public API of the eventstore.
