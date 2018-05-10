@@ -1,5 +1,5 @@
 # DDD Experimentations  
-![Codeship](https://codeship.com/projects/289505/status?branch=master)
+[ ![Codeship Status for nicolasbarbe/ddd](https://app.codeship.com/projects/8704d5c0-369e-0136-ef43-52a9274a0f1a/status?branch=master)](https://app.codeship.com/projects/289505)
 
 This repository contains some experiments to build a reactive event-sourced system.
 - `eventstore-api` Public API of the eventstore.
