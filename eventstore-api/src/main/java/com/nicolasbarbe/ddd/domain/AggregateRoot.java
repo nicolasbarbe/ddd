@@ -1,18 +1,24 @@
 package com.nicolasbarbe.ddd.domain;
 
 
+import com.nicolasbarbe.ddd.eventstore.Constants;
 import com.nicolasbarbe.ddd.eventstore.Event;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.nicolasbarbe.ddd.eventstore.Timestamp;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import lombok.Getter;
+import org.springframework.http.MediaType;
 import reactor.core.publisher.Flux;
 
 @Getter
@@ -20,22 +26,18 @@ public abstract class AggregateRoot {
 
     private static final Log logger = LogFactory.getLog(AggregateRoot.class);
 
-    private List<Event> changes;
-    private UUID              aggregateId;
-    private int               version;
+    private List<Event<?>>   changes;
+    private UUID             aggregateId;
+    private int              version;
 
     public AggregateRoot() {
         changes      = new ArrayList<>();
-        aggregateId = UUID.randomUUID();
-        version     = 0;
+        aggregateId  = UUID.randomUUID();
+        version      = -1;
     }
 
     public Flux<Event> listChanges() {
         return Flux.fromIterable(changes);
-    }
-
-    public int changeSize() {
-        return changes.size();
     }
 
 //    public void markChangesAsCommited()
@@ -43,21 +45,27 @@ public abstract class AggregateRoot {
 //        changes.clear();
 //    }
 
-    public void loadFromHistory(Flux<Event> history) {
-        history.doOnNext( event -> {
+    public Flux<Event<?>> loadFromHistory(Flux<Event<?>> history) {
+        return history.doOnNext( event -> {
             invokeEventHandler(event);
-//            this.version = event.getVersion();
+            this.version = event.getVersion();
         });
     }
     
 
-    public AggregateRoot apply(Event event) {
+    public <T> AggregateRoot apply(T event) {
         invokeEventHandler(event);
-        this.changes.add(event);
+        this.changes.add(
+                Event.<T>builder(
+                        event.getClass().getCanonicalName(),
+                        ++version,
+                        Timestamp.now())
+                        .data(event)
+                .build());
         return this;
     }
 
-    public void invokeEventHandler(Event event) {
+    private <T> void invokeEventHandler(T event) {
         for(Method method : this.getClass().getDeclaredMethods()) {
             if(method.isAnnotationPresent(EventHandler.class) && method.getParameters()[0].getType() == event.getClass()) {
                 try {

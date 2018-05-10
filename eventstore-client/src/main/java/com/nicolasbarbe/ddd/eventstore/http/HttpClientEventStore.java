@@ -53,7 +53,7 @@ public class HttpClientEventStore implements EventStore {
         return this.client.post()
                  .uri("/streams/{streamId}", eventStreamId)
                  .accept(MediaType.APPLICATION_JSON)
-                 .header(HttpHeaderAttributes.CE_X_StreamPosition, Integer.toString(fromPosition))
+                 .header(HttpHeaderAttributes.ES_StreamPosition, Integer.toString(fromPosition))
                  .contentType(MediaType.APPLICATION_JSON)
                  .body(fromObject(eventStream))
                  .retrieve()
@@ -65,7 +65,7 @@ public class HttpClientEventStore implements EventStore {
          return this.client.get()
                 .uri("/streams/{streamId}", eventStreamId)
                 .accept(MediaType.APPLICATION_JSON)
-                .header(HttpHeaderAttributes.CE_X_StreamPosition, Integer.toString(fromPosition))
+                .header(HttpHeaderAttributes.ES_StreamPosition, Integer.toString(fromPosition))
                 .retrieve()
                 .bodyToFlux(Event.class);
     }

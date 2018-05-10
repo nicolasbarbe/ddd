@@ -12,37 +12,26 @@ import lombok.Value;
 
 @Value
 @Builder
-public class Event  {
+public class Event<T>  {
     
     private String      eventType;
-    private String      eventTypeVersion;
-    private String      cloudEventsVersion;
-    private URI         source;
-    private String      eventID;
+    private int         version;
     private String      timestamp;
-    private URI         schemaURL;
-    private MediaType  contentType;
 
-    @Singular
-    private Map<String, String> extensions;
+    private T   data;
 
-    private String   data;
-
-
-    private static EventBuilder builder() {
-        return new EventBuilder();
+    private static <T> EventBuilder<T> builder() {
+        return new EventBuilder<T>();
     }
 
-    public static EventBuilder builder(String eventType, String cloudEventsVersion, URI source, String eventID){
-        Assert.hasLength( eventType, "Parameter eventType must be a non empty string.");
-        Assert.hasLength( cloudEventsVersion, "Parameter cloudEventsVersion must be a non empty string.");
-        Assert.notNull( source, "Parameter source cannot be null.");
-        Assert.hasLength( eventID, "Parameter eventID must be a non empty string.");
+    public static <T> EventBuilder<T> builder( String eventType, int version, String timestamp ){
+        Assert.notNull( eventType, "Parameter eventType cannot be null.");
+        Assert.isTrue( version >= 0, "Version must be positive");
 
-        return builder()
+        return Event.<T>builder()
                 .eventType(eventType)
-                .cloudEventsVersion(cloudEventsVersion)
-                .source(source)
-                .eventID(eventID);
+                .version(version)
+                .timestamp(timestamp);
     }
+
 }

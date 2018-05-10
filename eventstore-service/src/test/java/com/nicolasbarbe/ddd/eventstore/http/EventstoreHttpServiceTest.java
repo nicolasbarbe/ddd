@@ -1,16 +1,9 @@
 package com.nicolasbarbe.ddd.eventstore.http;
 
-import static com.nicolasbarbe.ddd.eventstore.http.HttpHeaderAttributes.CE_X_StreamPosition;
+import static com.nicolasbarbe.ddd.eventstore.http.HttpHeaderAttributes.ES_StreamPosition;
 import static org.mockito.BDDMockito.given;
 
-import com.nicolasbarbe.ddd.eventstore.Counter;
-import com.nicolasbarbe.ddd.eventstore.CounterDecrementedEvent;
-import com.nicolasbarbe.ddd.eventstore.CounterIncrementedEvent;
-import com.nicolasbarbe.ddd.eventstore.Event;
-import com.nicolasbarbe.ddd.eventstore.EventStore;
-import com.nicolasbarbe.ddd.eventstore.EventStoreHttpService;
-import com.nicolasbarbe.ddd.eventstore.EventStream;
-import com.nicolasbarbe.ddd.eventstore.StreamNotFoundException;
+import com.nicolasbarbe.ddd.eventstore.*;
 
 import java.net.URI;
 import java.util.UUID;
@@ -19,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
+import org.mockito.internal.verification.Times;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -99,8 +93,8 @@ public class EventstoreHttpServiceTest {
 
 		BDDMockito.given(this.eventStore.getEvents(streamId, 0))
 				.willReturn( Flux.just(
-						Event.builder( "test",  "0.1",  URI.create("test"), UUID.randomUUID().toString() ).build(),
-						Event.builder( "test",  "0.1",  URI.create("test"), UUID.randomUUID().toString() ).build()));
+						Event.builder( "test", 1, Timestamp.now()).build(),
+						Event.builder( "test", 2, Timestamp.now()).build()));
 
 		webClient.delete()
 				.uri("/streams/{streamId}/{position}", streamId, 0)
@@ -111,7 +105,7 @@ public class EventstoreHttpServiceTest {
 		webClient.patch()
 				.uri("/streams/{streamId}/{position}", streamId, 0)
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(Mono.just( Event.builder( "test",  "0.1",  URI.create("test"), UUID.randomUUID().toString() ).build()), Event.class)
+				.body(Mono.just(Event.builder( "test", 1, Timestamp.now()).build()), Event.class)
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus().isBadRequest();
@@ -119,7 +113,7 @@ public class EventstoreHttpServiceTest {
 		webClient.put()
 				.uri("/streams/{streamId}/{position}", streamId, 0)
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(Mono.just( Event.builder( "test",  "0.1",  URI.create("test"), UUID.randomUUID().toString() ).build()), Event.class)
+				.body(Mono.just( Event.builder( "test", 1, Timestamp.now()).build()), Event.class)
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus().isBadRequest();
@@ -135,7 +129,7 @@ public class EventstoreHttpServiceTest {
 
 		webClient.get()
 				.uri("/streams/" + streamId)
-				.header(CE_X_StreamPosition, Integer.toString(0))
+				.header(ES_StreamPosition, Integer.toString(0))
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus().isOk()
@@ -153,7 +147,7 @@ public class EventstoreHttpServiceTest {
 
 		webClient.get()
 				.uri("/streams/" + streamId)
-				.header(CE_X_StreamPosition, Integer.toString(500))
+				.header(ES_StreamPosition, Integer.toString(500))
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus().isOk()
@@ -172,7 +166,7 @@ public class EventstoreHttpServiceTest {
 		webClient.get()
                 .uri("/streams/" + streamId)
                 .accept(MediaType.APPLICATION_JSON)
-				.header(CE_X_StreamPosition, Integer.toString(0))
+				.header(ES_StreamPosition, Integer.toString(0))
 				.exchange()
                 .expectStatus().isNotFound();
     }
