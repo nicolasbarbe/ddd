@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,7 +21,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import reactor.core.publisher.Mono;
 
-@Component
 public class Handlers {
 
     private EventStore eventstore;
@@ -50,7 +50,7 @@ public class Handlers {
 
         try {
             return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                    .body( eventstore.getEvents(streamId, streamPosition).map( event -> (String) event.getData()), String.class);
+                    .body( eventstore.getEvents(streamId, streamPosition).map( event -> (Map) event.getData()), Map.class);
         }
         catch(StreamNotFoundException e) {
             return HttpResponse.notFound(e.getMessage());

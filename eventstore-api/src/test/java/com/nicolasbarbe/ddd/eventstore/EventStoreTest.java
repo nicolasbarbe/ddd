@@ -34,7 +34,10 @@ public abstract class EventStoreTest<T extends EventStore> {
     public void testCommitNewNonEmptyStreamToNewStream() {
 
         // Given
-        eventStore.commit("counter", Counter.countTo(100), 0);
+        StepVerifier.create(
+                eventStore.commit("counter", Counter.countTo(100), 0))
+                .expectNext(100l)
+                .verifyComplete();
 
         // Then
         StepVerifier.create(
@@ -50,11 +53,15 @@ public abstract class EventStoreTest<T extends EventStore> {
     public void testCommitNonEmptyStreamToAnExistingStream() {
 
         // Given
-        eventStore.commit("counter", Counter.countTo(100), 0);
+        StepVerifier.create(
+                eventStore.commit("counter", Counter.countTo(100), 0))
+                .expectNext(100l)
+                .verifyComplete();
 
         // When
         StepVerifier.create(
                 eventStore.commit("counter", Counter.countTo(50), 100))
+                .expectNext(50l)
                 .verifyComplete();
 
         // Then
@@ -196,7 +203,9 @@ public abstract class EventStoreTest<T extends EventStore> {
     public void testGetEventsFromPosition() {
 
         // Given
-        eventStore.commit("counter", Counter.countTo(100), 0);
+        StepVerifier.create(eventStore.commit("counter", Counter.countTo(100), 0))
+                .expectNext(100l)
+                .verifyComplete();
 
         // When
         Flux events = this.eventStore.getEvents("counter", 50);
@@ -216,10 +225,16 @@ public abstract class EventStoreTest<T extends EventStore> {
     public void testCommitEmptyListOfEventsToExistingStream() {
 
         // Given
-        eventStore.commit("counter", Counter.countTo(100), 0);
+        StepVerifier.create(
+                eventStore.commit("counter", Counter.countTo(100), 0))
+                .expectNext(100l)
+                .verifyComplete();
 
         // When
-        Mono res = eventStore.commit("counter", Flux.empty(), 100);
+        StepVerifier.create(
+                eventStore.commit("counter", Flux.empty(), 100))
+                .expectNext(0l)
+                .verifyComplete();
 
         // Then
         StepVerifier.create(this.eventStore.getAllEvents("counter"))

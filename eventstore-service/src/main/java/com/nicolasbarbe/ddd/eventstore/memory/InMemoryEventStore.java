@@ -7,10 +7,7 @@ import com.nicolasbarbe.ddd.eventstore.EventStream;
 import com.nicolasbarbe.ddd.eventstore.StreamNotFoundException;
 
 
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,7 +18,6 @@ import lombok.Synchronized;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Component
 public class InMemoryEventStore implements EventStore {
 
     private static final Log logger = LogFactory.getLog(InMemoryEventStore.class);
@@ -31,14 +27,19 @@ public class InMemoryEventStore implements EventStore {
 
     @Override
     @Synchronized
-    public Mono<Void> commit(String eventStreamId, Flux<Event> eventStream, int fromPosition) {
+    public Mono<Long> commit(String eventStreamId, Flux<Event> eventStream, int fromPosition) {
 
         Assert.hasLength(eventStreamId, "Invalid event stream Identifier");
         Assert.notNull(eventStream, "Invalid stream, cannot be null");
         Assert.isTrue(fromPosition >= 0, "Expected position is invalid, must be positive integer or zero");
 
-        // todo : avoid block operation in same thread than request...
-        List<? extends Event> newEvents = eventStream.collectList().block();
+        if (!history.containsKey(eventStreamId)) {
+            if (fromPosition == 0) {
+                history.put(eventStreamId, new ArrayList<>(100));
+            } else {
+                return Mono.error(new ConcurrentModificationException("Expected position of the stream must be 0 for a new stream"));
+            }
+        }
 
         if (history.containsKey(eventStreamId)) {
 
@@ -50,22 +51,7 @@ public class InMemoryEventStore implements EventStore {
 
             List streamHistory = history.get(eventStreamId);
 
-            try {
-                streamHistory.addAll(newEvents);
-            } catch (Exception e) {
-                logger.error("Cannot append the events to the stream", e);
-                return Mono.error(e);
-            }
-
-        } else if (fromPosition == 0) {
-            try {
-                history.putIfAbsent(eventStreamId, newEvents);
-            } catch (Exception e) {
-                logger.error("Cannot append the events to the stream", e);
-                return Mono.error(e);
-            }
-        } else {
-            return Mono.error(new ConcurrentModificationException("Expected position of the stream must be 0 for a new stream"));
+            return eventStream.map(event -> streamHistory.add(event)).count();
         }
 
         return Mono.empty();
