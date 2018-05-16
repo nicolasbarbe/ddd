@@ -30,9 +30,9 @@ public abstract class AggregateRoot {
     private UUID             aggregateId;
     private int              version;
 
-    public AggregateRoot() {
+    public AggregateRoot(UUID uuid) {
         changes      = new ArrayList<>();
-        aggregateId  = UUID.randomUUID();
+        aggregateId  = uuid;
         version      = -1;
     }
 
@@ -62,14 +62,18 @@ public abstract class AggregateRoot {
                         Timestamp.now())
                         .data(event)
                 .build());
+
+        logger.info("Event " + event + " sent.");
+
         return this;
     }
 
-    private <T> void invokeEventHandler(T event) {
+    private <T> Object invokeEventHandler(T event) {
         for(Method method : this.getClass().getDeclaredMethods()) {
             if(method.isAnnotationPresent(EventHandler.class) && method.getParameters()[0].getType() == event.getClass()) {
                 try {
-                    method.invoke(this, event);
+                    method.setAccessible(true);
+                    return method.invoke(this, event);
                 } catch (IllegalAccessException e) {
                     logger.error("Event handler " + method.getName() + " is not accessible", e);
                     throw new IllegalArgumentException(e);
@@ -80,5 +84,6 @@ public abstract class AggregateRoot {
             }
         }
         logger.warn("No event handler found for " + event.getClass().getName());
+        return null;
     }
 }
