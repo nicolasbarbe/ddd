@@ -1,0 +1,15 @@
+package com.nicolasbarbe.library.repository;
+
+import com.nicolasbarbe.ddd.repository.AbstractEventSourcedRepository;
+import com.nicolasbarbe.ddd.repository.EventSourcedRepository;
+import com.nicolasbarbe.ddd.eventstore.EventStore;
+import com.nicolasbarbe.library.domain.Library;
+import org.springframework.stereotype.Component;
+
+@Component
+public class LibraryRepository extends AbstractEventSourcedRepository<Library> implements EventSourcedRepository<Library> {
+    
+    protected LibraryRepository(EventStore eventStore) {
+        super(eventStore);
+    }
+}

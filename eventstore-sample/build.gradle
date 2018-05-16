@@ -1,0 +1,15 @@
+
+apply plugin: 'org.springframework.boot'
+
+dependencies {
+    compileOnly('org.projectlombok:lombok')
+    compile('org.springframework.boot:spring-boot-starter-webflux')
+    
+    compile project(':eventstore-api')
+    compile project(':eventstore-client')
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('io.projectreactor:reactor-test')
+    testCompileOnly('org.projectlombok:lombok')
+
+}
