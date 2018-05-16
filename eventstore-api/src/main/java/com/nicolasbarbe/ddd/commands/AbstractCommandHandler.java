@@ -1,9 +1,9 @@
 package com.nicolasbarbe.ddd.commands;
 
 import com.nicolasbarbe.ddd.domain.AggregateRoot;
-import com.nicolasbarbe.ddd.repository.Repository;
+import com.nicolasbarbe.ddd.repository.EventSourcedRepository;
 
-public abstract class AbstractCommandHandler<T extends AggregateRoot, U extends Command, V extends Repository<T>> implements CommandHandler<T, U, V> {
+public abstract class AbstractCommandHandler<T extends AggregateRoot, U extends Command, V extends EventSourcedRepository<T>> implements CommandHandler<T, U, V> {
 
     private V repository;
 

@@ -8,13 +8,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.UUID;
 
-public abstract class AbstractRepository<T extends AggregateRoot> implements EventSourcedRepository<T> {
+public abstract class AbstractEventSourcedRepository<T extends AggregateRoot> implements EventSourcedRepository<T> {
 
     protected EventStore eventStore;
 
     protected Class<T> aggregateClass;
 
-    protected AbstractRepository(EventStore eventStore) {
+    protected AbstractEventSourcedRepository(EventStore eventStore) {
         this.eventStore = eventStore;
         ParameterizedType genericSuperclass = (ParameterizedType) getClass().getGenericSuperclass();
         this.aggregateClass =  (Class<T>) genericSuperclass.getActualTypeArguments()[0];
