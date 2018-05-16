@@ -2,6 +2,7 @@ package com.nicolasbarbe.ddd.eventstore;
 
 import com.nicolasbarbe.ddd.eventstore.http.Handlers;
 
+import com.nicolasbarbe.ddd.eventstore.memory.InMemoryEventStore;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -15,18 +16,24 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 @SpringBootApplication
 public class EventStoreHttpService {
 
-	private Handlers handlers;
 
-	public EventStoreHttpService(Handlers handlers) {
-		this.handlers = handlers;
-	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(EventStoreHttpService.class, args);
 	}
 
 	@Bean
-	protected RouterFunction<ServerResponse> routes() {
+	protected EventStore getEventStore() {
+		return new InMemoryEventStore();
+	}
+
+	@Bean
+	protected Handlers handlers(EventStore eventStore) {
+		return new Handlers(eventStore);
+	}
+
+	@Bean
+	protected RouterFunction<ServerResponse> routes(Handlers handlers) {
 		return RouterFunctions.route( RequestPredicates.POST("/streams/{streamId}").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),     handlers::pushEventToStream)
 				.andRoute( RequestPredicates.GET("/streams").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),            handlers::listStreams)
 				.andRoute( RequestPredicates.GET("/streams/{streamId}").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), handlers::fetchEventsFromStream)
