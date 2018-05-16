@@ -8,6 +8,7 @@ public class CounterDecrementedEvent {
 
     private int decrement;
 
+
     @Override
     public String toString() {
         return "{" +

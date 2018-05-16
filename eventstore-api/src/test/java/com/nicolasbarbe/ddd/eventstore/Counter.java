@@ -4,6 +4,7 @@ package com.nicolasbarbe.ddd.eventstore;
 import java.net.URI;
 import java.util.UUID;
 
+import lombok.Value;
 import org.springframework.http.MediaType;
 
 import reactor.core.publisher.Flux;
