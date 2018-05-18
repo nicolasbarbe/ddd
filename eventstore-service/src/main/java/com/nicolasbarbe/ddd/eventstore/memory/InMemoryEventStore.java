@@ -9,6 +9,7 @@ import com.nicolasbarbe.ddd.eventstore.StreamNotFoundException;
 
 import java.util.*;
 
+import com.nicolasbarbe.ddd.publisher.Publisher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
@@ -21,9 +22,10 @@ import reactor.core.publisher.Mono;
 public class InMemoryEventStore implements EventStore {
 
     private static final Log logger = LogFactory.getLog(InMemoryEventStore.class);
+    private static final int STREAM_INITIAL_CAPACITY = 1000;
+    private static final int HISTORY_INITIAL_CAPACITY = 100;
 
-    private Map<String, List<? extends Event>> history = new HashMap<>(10);
-    //    private Map<String, Integer> aggregateNextPosition = new HashMap<>(10);
+    private Map<String, List<? extends Event>> history;
 
     @Override
     @Synchronized
@@ -35,7 +37,7 @@ public class InMemoryEventStore implements EventStore {
 
         if (!history.containsKey(eventStreamId)) {
             if (fromPosition == 0) {
-                history.put(eventStreamId, new ArrayList<>(100));
+                history.put(eventStreamId, new ArrayList<>(STREAM_INITIAL_CAPACITY));
             } else {
                 return Mono.error(new ConcurrentModificationException("Expected position of the stream must be 0 for a new stream"));
             }
