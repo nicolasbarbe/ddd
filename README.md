@@ -6,7 +6,7 @@ This repository contains some experiments to build a reactive event-sourced syst
 - `eventstore-service`  Standalone service providing an in-memory implementation of the eventstore.
 - `eventstore-client` Eventstore client API.
 
-This is a reactive implementation using [Project Reactor](https://projectreactor.io/) and [Spring Boot 2](https://projects.spring.io/spring-boot/) based on the [cloudevents](www.cloudevents.io) specifications.
+This is a reactive implementation using [Project Reactor](https://projectreactor.io/) and [Spring Boot 2](https://projects.spring.io/spring-boot/) based on the [cloudevents](https://cloudevents.io/) specifications.
 
 
 ## Usage  
