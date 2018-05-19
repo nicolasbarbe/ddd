@@ -3,9 +3,12 @@ package com.nicolasbarbe.ddd.eventstore;
 import com.nicolasbarbe.ddd.eventstore.http.Handlers;
 
 import com.nicolasbarbe.ddd.eventstore.memory.InMemoryEventStore;
+import com.nicolasbarbe.ddd.publisher.Publisher;
+import com.nicolasbarbe.ddd.publisher.SSEStreamPublisher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -14,6 +17,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 
 @SpringBootApplication
+@Import(SSEStreamPublisher.class)
 public class EventStoreHttpService {
 
 
@@ -23,8 +27,8 @@ public class EventStoreHttpService {
 	}
 
 	@Bean
-	protected EventStore getEventStore() {
-		return new InMemoryEventStore();
+	protected EventStore getEventStore(Publisher publisher) {
+		return new InMemoryEventStore(publisher);
 	}
 
 	@Bean

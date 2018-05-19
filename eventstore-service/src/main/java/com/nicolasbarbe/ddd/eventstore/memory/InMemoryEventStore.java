@@ -22,10 +22,17 @@ import reactor.core.publisher.Mono;
 public class InMemoryEventStore implements EventStore {
 
     private static final Log logger = LogFactory.getLog(InMemoryEventStore.class);
+
     private static final int STREAM_INITIAL_CAPACITY = 1000;
     private static final int HISTORY_INITIAL_CAPACITY = 100;
 
     private Map<String, List<? extends Event>> history;
+    private Publisher publisher;
+
+    public InMemoryEventStore(Publisher publisher) {
+        this.publisher = publisher;
+        this.history = new HashMap<>(HISTORY_INITIAL_CAPACITY);
+    }
 
     @Override
     @Synchronized
@@ -53,7 +60,13 @@ public class InMemoryEventStore implements EventStore {
 
             List streamHistory = history.get(eventStreamId);
 
-            return eventStream.map(event -> streamHistory.add(event)).count();
+            return eventStream
+                    .doOnNext( event -> {
+                        // todo handle case when add returns false or an exception
+                        streamHistory.add(event);
+                        this.publisher.publish(event);
+                    })
+                    .count();
         }
 
         return Mono.empty();
