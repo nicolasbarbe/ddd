@@ -1,6 +1,8 @@
 package com.nicolasbarbe.ddd.publisher;
 
 import com.nicolasbarbe.ddd.eventstore.Event;
+import com.nicolasbarbe.ddd.publisher.cloudevents.CloudEvent;
+import com.nicolasbarbe.ddd.publisher.cloudevents.CloudEventsTransformer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -19,12 +21,14 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 @Configuration
 public class SSEStreamPublisher implements Publisher {
 
-    UnicastProcessor<Event> hotSource = UnicastProcessor.create();
-
+    private UnicastProcessor<Event> hotSource = UnicastProcessor.create();
     private final Flux<Event> hotFlux;
+
+    private Transformer<CloudEvent> transformer;
 
     public SSEStreamPublisher() {
         this.hotFlux = hotSource.publish().autoConnect();
+        this.transformer = new CloudEventsTransformer();
     }
 
     @Override
@@ -38,7 +42,7 @@ public class SSEStreamPublisher implements Publisher {
                 GET("/hotstream"), request ->
                         ServerResponse.ok()
                                 .contentType(MediaType.TEXT_EVENT_STREAM)
-                                .body(this.hotFlux, Event.class));
+                                .body(this.hotFlux.transform(transformer::transform), CloudEvent.class));
     }
 
 
