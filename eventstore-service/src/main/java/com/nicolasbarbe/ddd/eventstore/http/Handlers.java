@@ -50,7 +50,7 @@ public class Handlers {
 
         try {
             return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                    .body( eventstore.getEvents(streamId, streamPosition).map( event -> (Map) event.getData()), Map.class);
+                    .body( eventstore.getEvents(streamId, streamPosition), Event.class);
         }
         catch(StreamNotFoundException e) {
             return HttpResponse.notFound(e.getMessage());
