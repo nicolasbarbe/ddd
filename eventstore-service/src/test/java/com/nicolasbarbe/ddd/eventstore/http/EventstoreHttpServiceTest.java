@@ -5,14 +5,10 @@ import static org.mockito.BDDMockito.given;
 
 import com.nicolasbarbe.ddd.eventstore.*;
 
-import java.net.URI;
-import java.util.UUID;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
-import org.mockito.internal.verification.Times;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,6 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 // webtestclient does not work yet with functional endpoint
 // https://github.com/spring-projects/spring-boot/issues/10683
@@ -54,11 +52,11 @@ public class EventstoreHttpServiceTest {
 	public void testListStreams() {
 
 		EventStream[] listOfEventStreams = new EventStream[] {
-				new EventStream("test-stream-1"),
-				new EventStream("test-stream-2"),
-				new EventStream("test-stream-3") };
+				new EventStream(UUID.randomUUID()),
+				new EventStream(UUID.randomUUID()),
+				new EventStream(UUID.randomUUID()) };
 
-		given(this.eventStore.listStreams())
+		given(this.eventStore.listEventStreams())
 				.willReturn(Flux.just( listOfEventStreams));
 
 		webClient.get()
@@ -73,7 +71,7 @@ public class EventstoreHttpServiceTest {
 
 	@Test
 	public void testNoListStreams() {
-		BDDMockito.given(this.eventStore.listStreams())
+		BDDMockito.given(this.eventStore.listEventStreams())
 				.willReturn(Flux.empty());
 
 		webClient.get()
@@ -89,9 +87,9 @@ public class EventstoreHttpServiceTest {
 	@Test
 	public void testStreamEndpointIsImmutable() {
 
-		String streamId = "test-stream-1";
+		UUID streamId = UUID.randomUUID();
 
-		BDDMockito.given(this.eventStore.getEvents(streamId, 0))
+		BDDMockito.given(this.eventStore.eventsFromPosition(streamId, 0))
 				.willReturn( Flux.just(
 						Event.builder( "test", 1, Timestamp.now()).build(),
 						Event.builder( "test", 2, Timestamp.now()).build()));
@@ -122,9 +120,9 @@ public class EventstoreHttpServiceTest {
 
 	@Test
 	public void testFetchAllEventsFromStream() {
-		String streamId   = "test-stream-1";
+		UUID streamId = UUID.randomUUID();
 
-		BDDMockito.given(this.eventStore.getEvents(streamId, 0))
+		BDDMockito.given(this.eventStore.eventsFromPosition(streamId, 0))
 				.willReturn( Counter.countTo(1000) );
 
 		webClient.get()
@@ -133,16 +131,16 @@ public class EventstoreHttpServiceTest {
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus().isOk()
-				.expectHeader().contentType(MediaType.APPLICATION_JSON)
+				.expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
 				.expectBodyList(CounterIncrementedEvent.class)
 				.hasSize(1000);
 	}
 
 	@Test
 	public void testFetchSomeEventsFromStream() {
-		String streamId   = "test-stream-1";
+		UUID streamId = UUID.randomUUID();
 
-		BDDMockito.given(this.eventStore.getEvents(streamId, 500))
+		BDDMockito.given(this.eventStore.eventsFromPosition(streamId, 500))
 				.willReturn( Counter.countDown(500 ));
 
 		webClient.get()
@@ -151,16 +149,16 @@ public class EventstoreHttpServiceTest {
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus().isOk()
-				.expectHeader().contentType(MediaType.APPLICATION_JSON)
+				.expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
 				.expectBodyList(CounterDecrementedEvent.class)
 				.hasSize(500);
 	}
 
     @Test
     public void testFetchEventsFromUnknownStream() {
-        String streamId   = "test-stream-1";
+		UUID streamId = UUID.randomUUID();
 
-        BDDMockito.given(this.eventStore.getEvents(streamId, 0))
+        BDDMockito.given(this.eventStore.eventsFromPosition(streamId, 0))
                 .willThrow(StreamNotFoundException.class);
 
 		webClient.get()

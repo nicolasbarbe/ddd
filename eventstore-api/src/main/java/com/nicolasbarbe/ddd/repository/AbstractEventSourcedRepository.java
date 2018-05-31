@@ -22,24 +22,20 @@ public abstract class AbstractEventSourcedRepository<T extends AggregateRoot> im
 
     @Override
     public Mono<Long> save(T aggregate, int expectedVersion) {
-        return eventStore.commit(
-                calculateEventStreamIdentifier( aggregate.getAggregateId()),
+        return eventStore.appendToEventStream(
+                aggregate.getAggregateId(),
                 aggregate.listChanges(),
                 expectedVersion);
     }
 
     @Override
     public Mono<T> findById(UUID aggregateId) {
-        return eventStore.getAllEvents(calculateEventStreamIdentifier(aggregateId))
+        return eventStore.allEvents(aggregateId)
                 .reduce( newInstance(aggregateId), (aggregate, event) -> (T) aggregate.apply(event));
     }
 
     public Class<T> getAggregateClass() {
         return aggregateClass;
-    }
-
-    protected String calculateEventStreamIdentifier(UUID aggregateId) {
-        return aggregateClass.getSimpleName() + "_" + aggregateId.toString();
     }
 
     protected T newInstance(UUID uuid) {

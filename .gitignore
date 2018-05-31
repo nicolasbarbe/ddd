@@ -37,3 +37,15 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+
+### NetBeans ###
+out
+server
+node_modules
+*.vsix
+.DS_Store
+.vscode-test
+undefined
+target
+bin
+.vscode

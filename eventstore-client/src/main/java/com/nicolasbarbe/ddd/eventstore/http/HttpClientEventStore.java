@@ -1,7 +1,5 @@
 package com.nicolasbarbe.ddd.eventstore.http;
 
-import static org.springframework.web.reactive.function.BodyInserters.fromObject;
-
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -9,14 +7,14 @@ import com.nicolasbarbe.ddd.eventstore.Event;
 import com.nicolasbarbe.ddd.eventstore.EventStore;
 import com.nicolasbarbe.ddd.eventstore.EventStream;
 import com.nicolasbarbe.ddd.eventstore.StreamNotFoundException;
-import com.nicolasbarbe.ddd.eventstore.http.HttpHeaderAttributes;
 
+import com.nicolasbarbe.ddd.eventstore.transformer.FluxEventTransformer;
+import com.nicolasbarbe.ddd.eventstore.transformer.MonoEventTransformer;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -25,6 +23,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import io.netty.channel.ChannelOption;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 public class HttpClientEventStore implements EventStore {
 
@@ -58,7 +58,12 @@ public class HttpClientEventStore implements EventStore {
     }
 
     @Override
-    public Mono<Long> commit(String eventStreamId, Flux<Event> eventStream, int fromPosition) {
+    public Mono<EventStream> createEventStream() {
+        return null;
+    }
+
+    @Override
+    public Mono<Long> appendToEventStream(UUID eventStreamId, Flux<Event> eventStream, int fromPosition)  {
         return this.client.post()
                  .uri("/streams/{streamId}", eventStreamId)
                  .accept(MediaType.APPLICATION_JSON)
@@ -70,18 +75,39 @@ public class HttpClientEventStore implements EventStore {
     }
 
     @Override
-    public Flux<Event> getEvents(String eventStreamId, int fromPosition) throws StreamNotFoundException {
-         return this.client.get()
+    public <T> Flux<T> listenToEventStream(UUID eventStreamId, FluxEventTransformer<T> transformer) throws StreamNotFoundException {
+        return this.client.get()
                 .uri("/streams/{streamId}", eventStreamId)
-                .accept(MediaType.APPLICATION_JSON)
-                .header(HttpHeaderAttributes.ES_StreamPosition, Integer.toString(fromPosition))
+                .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(Event.class);
+                .bodyToFlux(Event.class)
+                .transform( transformer );
     }
-    
 
     @Override
-    public Flux<EventStream> listStreams() {
+    public <T> Flux<T> eventsFromPosition(UUID eventStreamId, int fromPosition, FluxEventTransformer<T> transformer) throws StreamNotFoundException {
+         return this.client.get()
+                 .uri("/streams/{streamId}", eventStreamId)
+                 .accept(MediaType.APPLICATION_JSON)
+                 .header(HttpHeaderAttributes.ES_StreamPosition, Integer.toString(fromPosition))
+                 .retrieve()
+                 .bodyToFlux(Event.class)
+                 .transform( transformer );
+    }
+
+    @Override
+    public <T> Mono<T> eventAtPosition(UUID eventStreamId, int position, MonoEventTransformer<T> transformer) throws StreamNotFoundException {
+        return this.client.get()
+                .uri("/streams/{streamId}/{position}", eventStreamId, position)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(Event.class)
+                .transform(transformer);
+    }
+
+
+    @Override
+    public Flux<EventStream> listEventStreams() {
         return null;
     }
 

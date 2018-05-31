@@ -1,9 +1,9 @@
 package com.nicolasbarbe.library.command;
 
 
-import com.nicolasbarbe.ddd.commands.AbstractCommandHandler;
-import com.nicolasbarbe.ddd.commands.Command;
-import com.nicolasbarbe.ddd.commands.CommandHandler;
+import com.nicolasbarbe.ddd.command.AbstractCommandHandler;
+import com.nicolasbarbe.ddd.command.Command;
+import com.nicolasbarbe.ddd.command.CommandHandler;
 import com.nicolasbarbe.library.domain.Library;
 import com.nicolasbarbe.library.repository.LibraryRepository;
 

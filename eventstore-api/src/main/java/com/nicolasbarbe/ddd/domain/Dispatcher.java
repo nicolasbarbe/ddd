@@ -16,7 +16,7 @@ public class Dispatcher {
 //    public void dispatch() {
 //
 ////        for(Publisher publisher : publishers) {
-////            publisher.publish();
+////            publisher.project();
 ////        }
 //    }
 }

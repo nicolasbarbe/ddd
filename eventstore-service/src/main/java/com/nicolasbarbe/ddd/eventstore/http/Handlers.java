@@ -10,11 +10,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ConcurrentModificationException;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,38 +28,62 @@ public class Handlers {
         this.eventstore = eventstore;
     }
 
-    public Mono<ServerResponse> pushEventToStream(ServerRequest request) {
-        String streamId = request.pathVariable("streamId");
+    public Mono<ServerResponse> createEventStream(ServerRequest request) {
+        return this.eventstore.createEventStream()
+                .flatMap( s -> ServerResponse.created( URI.create( "/streams/" + s.getEventStreamId().toString())).build() );
+    }
+
+    public Mono<ServerResponse> appendToEventStream(ServerRequest request) {
+        UUID streamId = UUID.fromString(request.pathVariable("streamId"));
         int streamPosition = toInt(HttpHeaderAttributes.ES_StreamPosition, getRequestHeaderAttribute(HttpHeaderAttributes.ES_StreamPosition, request.headers(), true));
         
-        return eventstore.commit(streamId, request.bodyToFlux(Event.class), streamPosition)
+        return eventstore.appendToEventStream(streamId, request.bodyToFlux(Event.class), streamPosition)
                 .then( ServerResponse.ok().build() )
                 .onErrorResume(ConcurrentModificationException.class, error -> HttpResponse.badRequest(error.getMessage() ));
     }
 
-    public Mono<ServerResponse> listStreams(ServerRequest request) {
+    public Mono<ServerResponse> listEventStreams(ServerRequest request) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(eventstore.listStreams(), EventStream.class);
+                .body(eventstore.listEventStreams(), EventStream.class);
     }
 
-    public Mono<ServerResponse> fetchEventsFromStream(ServerRequest request) {
-        String streamId = request.pathVariable("streamId");
-        int streamPosition = toInt(HttpHeaderAttributes.ES_StreamPosition, getRequestHeaderAttribute(HttpHeaderAttributes.ES_StreamPosition, request.headers(), true));
+    public Mono<ServerResponse> listenToEventStream(ServerRequest request) {
+        UUID streamId = UUID.fromString(request.pathVariable("streamId"));
 
         try {
-            return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                    .body( eventstore.getEvents(streamId, streamPosition), Event.class);
+            return ServerResponse.ok().contentType(MediaType.TEXT_EVENT_STREAM)
+                    .body( eventstore.listenToEventStream(streamId), Event.class);
         }
         catch(StreamNotFoundException e) {
             return HttpResponse.notFound(e.getMessage());
         }
     }
+
+    public Mono<ServerResponse> eventAtPosition(ServerRequest request) {
+        UUID streamId = UUID.fromString(request.pathVariable("streamId"));
+        int position = Integer.parseInt(request.pathVariable("position"));
+
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                .body( eventstore.eventAtPosition(streamId, position), Event.class)
+                .onErrorResume( StreamNotFoundException.class, e -> ServerResponse.notFound().build());
+    }
+
+    public Mono<ServerResponse> eventsFromPosition(ServerRequest request) {
+        UUID streamId = UUID.fromString(request.pathVariable("streamId"));
+        int fromPosition = toInt(HttpHeaderAttributes.ES_StreamPosition, getRequestHeaderAttribute(HttpHeaderAttributes.ES_StreamPosition, request.headers(), true));
+
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                .body( eventstore.eventsFromPosition(streamId, fromPosition), Event.class)
+                .onErrorResume( StreamNotFoundException.class, e -> ServerResponse.notFound().build());
+    }
     
     public Mono<ServerResponse> streamEndpointIsImmutable(ServerRequest serverRequest) {
         return HttpResponse.badRequest("Operation not permitted, streams are immutable");
     }
-    
+
+
+
     // return null if the attribute cannot be found
     private String getRequestHeaderAttribute(String attributeName, ServerRequest.Headers headers, boolean mandatory) throws ResponseStatusException {
          List<String> attribute = headers.header(attributeName);
@@ -98,4 +121,6 @@ public class Handlers {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Field " + attributeName + " must be a valid URI");
         }
     }
+
+
 }

@@ -1,4 +1,4 @@
-package com.nicolasbarbe.ddd.commands;
+package com.nicolasbarbe.ddd.command;
 
 import com.nicolasbarbe.ddd.domain.AggregateRoot;
 import com.nicolasbarbe.ddd.repository.EventSourcedRepository;

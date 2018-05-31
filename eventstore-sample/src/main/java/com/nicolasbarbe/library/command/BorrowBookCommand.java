@@ -1,6 +1,6 @@
 package com.nicolasbarbe.library.command;
 
-import com.nicolasbarbe.ddd.commands.Command;
+import com.nicolasbarbe.ddd.command.Command;
 import lombok.Value;
 
 @Value

@@ -1,6 +1,5 @@
-package com.nicolasbarbe.ddd.publisher.cloudevents;
+package com.nicolasbarbe.ddd.eventstore.transformer.cloudevents;
 
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.http.MediaType;
