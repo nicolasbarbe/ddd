@@ -107,6 +107,7 @@ public abstract class EventStoreTest<T extends EventStore> {
 
         StepVerifier.create(
                 eventStore.appendToEventStream(eventStreamId, Counter.countTo(100), 0))
+                .expectNext(100L)
                 .verifyComplete();
 
         StepVerifier.create(
@@ -123,7 +124,7 @@ public abstract class EventStoreTest<T extends EventStore> {
 
         StepVerifier.create(
                 eventStore.appendToEventStream(eventStreamId, Counter.countTo(100), 0))
-                .expectNextCount(100)
+                .expectNext(100L)
                 .verifyComplete();
 
         StepVerifier.create(        
@@ -143,9 +144,12 @@ public abstract class EventStoreTest<T extends EventStore> {
     /**
      * Test {@link EventStore#allEvents} with a non existing stream ID
      */
-    @Test(expected = StreamNotFoundException.class)
+
     public void testGetEventsWithInvalidStreamId() {
-        this.eventStore.allEvents(UUID.randomUUID());
+        StepVerifier.create(
+                this.eventStore.allEvents(UUID.randomUUID()))
+                .expectError(StreamNotFoundException.class)
+                .verify();
     }
 
     /**
@@ -161,17 +165,18 @@ public abstract class EventStoreTest<T extends EventStore> {
       
 
     /**
-     * Test {@link EventStore#allEvents} from a given position
+     * Test {@link EventStore#eventsFromPosition} from a given position
      */
     @Test
     public void testGetEventsFromPosition() {
 
         StepVerifier.create(
                 eventStore.appendToEventStream(eventStreamId, Counter.countTo(100), 0))
+                .expectNext(100L)
                 .verifyComplete();
 
         StepVerifier.create(
-                eventStore.allEvents(eventStreamId))
+                eventStore.eventsFromPosition(eventStreamId, 50) )
                 .expectNextCount(50)
                 .verifyComplete();
     }
@@ -186,6 +191,7 @@ public abstract class EventStoreTest<T extends EventStore> {
 
         StepVerifier.create(
                 eventStore.appendToEventStream(eventStreamId, Counter.countTo(100), 0))
+                .expectNext(100L)
                 .verifyComplete();
 
         StepVerifier.create(

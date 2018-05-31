@@ -159,7 +159,7 @@ public class EventstoreHttpServiceTest {
 		UUID streamId = UUID.randomUUID();
 
         BDDMockito.given(this.eventStore.eventsFromPosition(streamId, 0))
-                .willThrow(StreamNotFoundException.class);
+                .willReturn(Flux.error(new StreamNotFoundException("Stream not found")));
 
 		webClient.get()
                 .uri("/streams/" + streamId)

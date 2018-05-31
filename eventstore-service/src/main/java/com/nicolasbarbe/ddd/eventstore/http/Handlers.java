@@ -65,8 +65,8 @@ public class Handlers {
         int position = Integer.parseInt(request.pathVariable("position"));
 
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                .body( eventstore.eventAtPosition(streamId, position), Event.class)
-                .onErrorResume( StreamNotFoundException.class, e -> ServerResponse.notFound().build());
+                .body( eventstore.eventAtPosition(streamId, position)
+                        .onErrorMap(StreamNotFoundException.class, e -> new ResponseStatusException( HttpStatus.NOT_FOUND, e.getMessage())), Event.class);
     }
 
     public Mono<ServerResponse> eventsFromPosition(ServerRequest request) {
@@ -74,8 +74,8 @@ public class Handlers {
         int fromPosition = toInt(HttpHeaderAttributes.ES_StreamPosition, getRequestHeaderAttribute(HttpHeaderAttributes.ES_StreamPosition, request.headers(), true));
 
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                .body( eventstore.eventsFromPosition(streamId, fromPosition), Event.class)
-                .onErrorResume( StreamNotFoundException.class, e -> ServerResponse.notFound().build());
+                .body(eventstore.eventsFromPosition(streamId, fromPosition)
+                        .onErrorMap(StreamNotFoundException.class, e -> new ResponseStatusException( HttpStatus.NOT_FOUND, e.getMessage())), Event.class);
     }
     
     public Mono<ServerResponse> streamEndpointIsImmutable(ServerRequest serverRequest) {
