@@ -5,75 +5,58 @@ This repository contains some experiments to build a reactive event-sourced syst
 - `eventstore-api` Public API of the eventstore.
 - `eventstore-service`  Standalone service providing an in-memory implementation of the eventstore.
 - `eventstore-client` Eventstore client API.
+- `eventstore-sample` A sample implementation of an event-sourced service
 
 This is a reactive implementation using [Project Reactor](https://projectreactor.io/) and [Spring Boot 2](https://projects.spring.io/spring-boot/) based on the [cloudevents](https://cloudevents.io/) specifications.
-
 
 ## Usage  
 
 ### HTTP Endpoints
-
-- Commit a new event to the eventstream
+- Create a new stream
 ```$sh
-curl -X POST \
-  http://localhost:8080/streams/stream-1 \
-  -H 'cache-control: no-cache' \
-  -H 'ce-cloudeventsversion: 0.1' \
-  -H 'ce-eventid: 1' \
-  -H 'ce-eventtype: com.nicolasbarbe.counterIncremented' \
-  -H 'ce-source: test-source' \
-  -H 'ce-x-streamposition: 0' \
+curl -X POST http://localhost:8080/streams/
+```
+
+- List all available streams
+```
+curl -X GET \
+ http://localhost:8080/streams/ \
+ -H 'content-type: application/json' 
+```
+returns
+```
+[{"eventStreamId":"9d329518-83b1-4ac2-b520-cf3e9e45f291"}]
+```
+
+- Append a new event to the eventstream
+```$sh
+ curl -X POST \
+  http://localhost:8080/streams/9d329518-83b1-4ac2-b520-cf3e9e45f291 \
+  -H "ES-StreamPosition: 0" \
   -H 'content-type: application/json' \
-  -d '{"increment" : "1" }'
+  -d '{"eventType" : "counter", "version" : "1", "timestamp" : "2018-04-05T17:31:00Z", "data" : { "increment" : "1"} }'
 ```
 
 - List the events present in an eventstream
 ```
 curl -X GET \
- http://localhost:8080/streams/stream-1 \
- -H 'cache-control: no-cache' \
- -H 'ce-x-streamposition: 0' \
+ http://localhost:8080/streams/9d329518-83b1-4ac2-b520-cf3e9e45f291 \
+ -H 'ES-StreamPosition: 0' \
  -H 'content-type: application/json' 
 ```
 returns
 ```
-{"increment" : "1" }
-```
-- List all available streams
-```
-curl -X GET \
- http://localhost:8080/streams/ \
- -H 'cache-control: no-cache' \
- -H 'content-type: application/json' 
-```
-returns
-```
-[{"eventStreamId":"stream-1"}]%
+[{"eventType":"counter","version":1,"timestamp":"2018-04-05T17:31:00Z","data":{"increment":"1"}}]
 ```
 
-## Java API
-Let's define first an event representing a counter that has been incremented:
-```java
-@Value
-public class CounterIncrementedEvent {
-    private int increment;
-}
+- Listen to an eventstream
 ```
-Our main domain object is a counter exposing a method factory generating the counter events:
-```java
-public class Counter {
-    
-    public static final Flux<Event> countTo(int to) {
-        return Flux.range(0, to)
-                .map(i -> Event.builder( "com.nicolasbarbe.counterIncremented", "0.1", URI.create("test"), UUID.randomUUID().toString())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .data(new CounterIncrementedEvent(1))
-                        .build());
-    }
-}
+curl -X GET \
+ http://localhost:8080/streams/9d329518-83b1-4ac2-b520-cf3e9e45f291 \
+ -H 'accept: text/event-stream' 
 ```
-The last step consists in saving the counter events to a new event stream using the client API:
-```java
-HttpClientEventStore eventStore = new HttpClientEventStore("http://localhost:8080"); 
-eventStore.commit("counter", Counter.countTo(100), 0);
+returns
+```
+data:{"eventType":"counter","version":1,"timestamp":"2018-04-05T17:29:00Z","data":{"increment":"1"}}
+data:{"eventType":"counter","version":2,"timestamp":"2018-04-05T17:31:00Z","data":{"increment":"2"}}
 ```
