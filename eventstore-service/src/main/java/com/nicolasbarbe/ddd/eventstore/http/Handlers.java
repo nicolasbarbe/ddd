@@ -20,6 +20,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import reactor.core.publisher.Mono;
 
+import static org.springframework.web.reactive.function.BodyExtractors.toMono;
+import static org.springframework.web.reactive.function.BodyInserters.fromObject;
+
 public class Handlers {
 
     private EventStore eventstore;
@@ -30,7 +33,7 @@ public class Handlers {
 
     public Mono<ServerResponse> createEventStream(ServerRequest request) {
         return this.eventstore.createEventStream()
-                .flatMap( s -> ServerResponse.created( URI.create( "/streams/" + s.getEventStreamId().toString())).build() );
+                .flatMap( s -> ServerResponse.created( URI.create( "/streams/" + s.getEventStreamId().toString())).body(fromObject(s)) );
     }
 
     public Mono<ServerResponse> appendToEventStream(ServerRequest request) {
