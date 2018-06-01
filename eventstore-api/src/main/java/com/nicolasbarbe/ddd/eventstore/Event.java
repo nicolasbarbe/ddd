@@ -1,13 +1,8 @@
 package com.nicolasbarbe.ddd.eventstore;
 
-import java.net.URI;
-import java.util.Map;
-
-import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 
 import lombok.Builder;
-import lombok.Singular;
 import lombok.Value;
 
 @Value
