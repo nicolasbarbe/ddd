@@ -1,15 +1,10 @@
 package com.nicolasbarbe.ddd.domain;
 
-
-import com.nicolasbarbe.ddd.eventstore.Constants;
 import com.nicolasbarbe.ddd.eventstore.Event;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,7 +13,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import lombok.Getter;
-import org.springframework.http.MediaType;
 import reactor.core.publisher.Flux;
 
 @Getter
@@ -29,6 +23,10 @@ public abstract class AggregateRoot {
     private List<Event<?>>   changes;
     private UUID             aggregateId;
     private int              version;
+
+    public AggregateRoot() {
+        this(null);
+    }
 
     public AggregateRoot(UUID uuid) {
         changes      = new ArrayList<>();

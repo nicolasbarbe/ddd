@@ -8,8 +8,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LibraryRepository extends AbstractEventSourcedRepository<Library> implements EventSourcedRepository<Library> {
-    
+
+    // The library singleton
+    private Library library = new Library();
+
     protected LibraryRepository(EventStore eventStore) {
         super(eventStore);
+    }
+
+    public Library getLibrary() {
+          return library;
     }
 }

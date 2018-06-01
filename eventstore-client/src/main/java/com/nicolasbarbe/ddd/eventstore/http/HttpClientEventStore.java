@@ -59,8 +59,12 @@ public class HttpClientEventStore implements EventStore {
 
     @Override
     public Mono<EventStream> createEventStream() {
-        return null;
-    }
+        return this.client.post()
+                .uri("/streams")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(EventStream.class);    }
 
     @Override
     public Mono<Long> appendToEventStream(UUID eventStreamId, Flux<Event> eventStream, int fromPosition)  {

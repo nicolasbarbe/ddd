@@ -19,8 +19,6 @@ public class BootstrapData implements ApplicationRunner {
 
     private static final Log logger = LogFactory.getLog(BootstrapData.class);
 
-    public static final UUID LIBRARY_UUID = new UUID(0,0);
-
     private LibraryRepository repository;
 
     public BootstrapData(LibraryRepository repository) {
@@ -30,7 +28,7 @@ public class BootstrapData implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        Library library = new Library(LIBRARY_UUID);
+        Library library = repository.getLibrary();
 
         // todo add check to avoid reboostraping data
         Flux.just(
@@ -52,6 +50,8 @@ public class BootstrapData implements ApplicationRunner {
                         LocalDate.of(2018, Month.JANUARY, 16)))
                 .map( ref -> library.addReference(ref.getT1(), ref.getT2(), ref.getT3()) )
                 .then( this.repository.save(library, 0) )
-                .subscribe( v -> logger.info("Data bootstrapped successfully."));
+                .subscribe( v -> logger.info("Data bootstrapped successfully."), e -> logger.error("Something wrong happened while bootstrapping the data.", e));
     }
+
+
 }

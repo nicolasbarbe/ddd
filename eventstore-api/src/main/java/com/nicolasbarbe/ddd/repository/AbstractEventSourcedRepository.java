@@ -4,6 +4,7 @@ import com.nicolasbarbe.ddd.domain.AggregateRoot;
 import com.nicolasbarbe.ddd.eventstore.EventStore;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.UUID;
@@ -22,10 +23,35 @@ public abstract class AbstractEventSourcedRepository<T extends AggregateRoot> im
 
     @Override
     public Mono<Long> save(T aggregate, int expectedVersion) {
-        return eventStore.appendToEventStream(
-                aggregate.getAggregateId(),
-                aggregate.listChanges(),
-                expectedVersion);
+
+        Mono<UUID> aggregateId;
+
+        if(null == aggregate.getAggregateId()) {
+            aggregateId = eventStore.createEventStream().flatMap( s -> {
+                UUID aggId = s.getEventStreamId();
+                Field aggregateIdField = null;
+                try {
+                    aggregateIdField = aggregate.getClass().getSuperclass().getDeclaredField("aggregateId");
+                } catch (NoSuchFieldException e) {
+                    return Mono.error(e);
+                }
+                aggregateIdField.setAccessible(true);
+                try {
+                    aggregateIdField.set(aggregate, aggId);
+                } catch (IllegalAccessException e) {
+                    return Mono.error(e);
+                }
+                return Mono.just(s.getEventStreamId());
+            });
+        } else {
+            aggregateId = Mono.just(aggregate.getAggregateId());
+        }
+
+        return aggregateId.flatMap( aggId ->
+                eventStore.appendToEventStream(
+                        aggId,
+                        aggregate.listChanges(),
+                        expectedVersion));
     }
 
     @Override

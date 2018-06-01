@@ -16,8 +16,7 @@ import java.util.UUID;
 public class Library  extends AggregateRoot {
     private Map<String, BookCopies> copies;
 
-    public Library(UUID aggregateID) {
-        super(aggregateID);
+    public Library() {
         this.apply( new NewLibraryCreated() );
     }
 

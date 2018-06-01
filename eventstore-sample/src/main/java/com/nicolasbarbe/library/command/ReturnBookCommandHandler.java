@@ -1,10 +1,10 @@
 package com.nicolasbarbe.library.command;
 
 import com.nicolasbarbe.library.repository.LibraryRepository;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.nicolasbarbe.library.BootstrapData.LIBRARY_UUID;
+import java.util.UUID;
+
 
 public class ReturnBookCommandHandler extends BookCommandHandler<ReturnBookCommand> {
 
@@ -15,8 +15,10 @@ public class ReturnBookCommandHandler extends BookCommandHandler<ReturnBookComma
     @Override
     public Mono<Void> handle(Mono<ReturnBookCommand> command) {
 
+        UUID libraryID = getRepository().getLibrary().getAggregateId();
+
         return command
-                .zipWith(this.getRepository().findById(LIBRARY_UUID), (c, library) -> library.returnBook(c.getISBN()))
+                .zipWith(this.getRepository().findById(libraryID), (c, library) -> library.returnBook(c.getISBN()))
                 .flatMap( library -> this.getRepository().save(library, 0))
                 .then(Mono.empty());
     }
