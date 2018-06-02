@@ -6,6 +6,9 @@ import com.nicolasbarbe.library.command.BorrowBookCommand;
 import com.nicolasbarbe.library.command.BorrowBookCommandHandler;
 import com.nicolasbarbe.library.command.ReturnBookCommand;
 import com.nicolasbarbe.library.command.ReturnBookCommandHandler;
+import com.nicolasbarbe.library.event.BookReferenceAdded;
+import com.nicolasbarbe.library.event.NewLibraryCreated;
+import com.nicolasbarbe.library.projection.ListOfBooks;
 import com.nicolasbarbe.library.repository.LibraryRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,11 +17,14 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.*;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.web.reactive.function.BodyInserters.fromObject;
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 
 @SpringBootApplication
 public class LibraryService {
 
+	private ListOfBooks listOfBooks;
 
 	public LibraryService() {
 	}
@@ -52,17 +58,38 @@ public class LibraryService {
 
 				.andRoute( RequestPredicates.POST("/commands/returnBook")
 						.and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
-						request -> returnBookCommandHandler(request, returnBookCommandHandler));
+						request -> returnBookCommandHandler(request, returnBookCommandHandler))
+
+				.andRoute( RequestPredicates.GET("/library"),  this::listBooks);
 	}
+
+
 
 	private Mono<ServerResponse> borrowBookCommandHandler(ServerRequest request, BorrowBookCommandHandler borrowBookCommandHandler) {
 		return borrowBookCommandHandler.handle(request.bodyToMono(BorrowBookCommand.class))
-				.then( ServerResponse.ok().build() );
+				.then( ok().build() );
 	}
 
 	private Mono<ServerResponse> returnBookCommandHandler(ServerRequest request, ReturnBookCommandHandler returnBookCommandHandler) {
 		return returnBookCommandHandler.handle(request.bodyToMono(ReturnBookCommand.class))
-				.then( ServerResponse.ok().build() );
+				.then( ok().build() );
+	}
+
+	private Mono<ServerResponse> listBooks(ServerRequest request) {
+		return this.getEventStore().listEventStreams()
+				// we assume there is only one event stream
+				.take(1)
+				.log()
+				.flatMap( stream -> this.getEventStore().allEvents(stream.getEventStreamId()))
+				.log()
+				.reduce( new ListOfBooks(), (books, event) -> {
+					String eventType = event.getEventType();
+					 if (eventType.equals(BookReferenceAdded.class.getCanonicalName())) {
+						 books.getBooks().add(new ListOfBooks.Book(((BookReferenceAdded) event.getData()).getTitle()));
+					 }
+					 return books;
+				})
+				.flatMap( books -> ok().body( fromObject(books) ));
 	}
 
 }
