@@ -112,7 +112,11 @@ public class HttpClientEventStore implements EventStore {
 
     @Override
     public Flux<EventStream> listEventStreams() {
-        return null;
+        return this.client.get()
+                .uri("/streams/")
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToFlux(EventStream.class);
     }
 
     //    public void registerEvent(Class eventClass) {
