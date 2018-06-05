@@ -4,7 +4,7 @@ import lombok.Value;
 
 @Value
 public class CounterDecrementedEvent {
-    public static final String EVENT_TYPE = "counterDecremented";
+    public static final String EVENT_TYPE = CounterDecrementedEvent.class.getSimpleName();
 
     private int decrement;
 

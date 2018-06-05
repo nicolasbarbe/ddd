@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 public class CounterIncrementedEvent {
-    public static final String EVENT_TYPE = CounterIncrementedEvent.class.getCanonicalName();
+    public static final String EVENT_TYPE = CounterIncrementedEvent.class.getSimpleName();
 
     private int increment;
 

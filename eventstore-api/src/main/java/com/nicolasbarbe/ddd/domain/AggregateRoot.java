@@ -55,7 +55,7 @@ public abstract class AggregateRoot {
         invokeEventHandler(event);
         this.changes.add(
                 Event.<T>builder(
-                        event.getClass().getCanonicalName(),
+                        event.getClass().getSimpleName(),
                         ++version,
                         Timestamp.now())
                         .data(event)

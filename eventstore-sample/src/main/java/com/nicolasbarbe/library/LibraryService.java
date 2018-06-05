@@ -79,13 +79,14 @@ public class LibraryService {
 		return this.getEventStore().listEventStreams()
 				// we assume there is only one event stream
 				.take(1)
-				.log()
 				.flatMap( stream -> this.getEventStore().allEvents(stream.getEventStreamId()))
 				.log()
 				.reduce( new ListOfBooks(), (books, event) -> {
-					String eventType = event.getEventType();
-					 if (eventType.equals(BookReferenceAdded.class.getCanonicalName())) {
-						 books.getBooks().add(new ListOfBooks.Book(((BookReferenceAdded) event.getData()).getTitle()));
+					Object payload = event.getData();
+					 if ( payload instanceof  BookReferenceAdded) {
+						 books.getBooks().add(new ListOfBooks.Book(((BookReferenceAdded) payload).getTitle()));
+					 } else if(payload instanceof  NewLibraryCreated) {
+						 // do nothing
 					 }
 					 return books;
 				})

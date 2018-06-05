@@ -88,6 +88,7 @@ public class Handlers {
 
 
     // return null if the attribute cannot be found
+    // Todo refactor this ugly code
     private String getRequestHeaderAttribute(String attributeName, ServerRequest.Headers headers, boolean mandatory) throws ResponseStatusException {
          List<String> attribute = headers.header(attributeName);
          if(attribute.size() != 1 ) {
@@ -105,6 +106,7 @@ public class Handlers {
          return attribute.get(0);
     }
 
+    // Todo refactor this ugly code
     private int toInt(String attributeName, String attributeValue ) {
         try {
             return Integer.parseInt(attributeValue);
@@ -113,6 +115,7 @@ public class Handlers {
         }
     }
 
+    // Todo refactor this ugly code
     private URI toURI(String attributeName, String value) throws ResponseStatusException {
         if(null == value) {
             return null;

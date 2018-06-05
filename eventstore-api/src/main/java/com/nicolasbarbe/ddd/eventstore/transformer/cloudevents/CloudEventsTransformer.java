@@ -20,6 +20,7 @@ public class CloudEventsTransformer {
 
     private static CloudEvent transform(Event event) {
         return new CloudEvent(
+                // todo find a way to retrieve event type
                 event.getEventType(),
                 String.valueOf(event.getVersion()),
                 event.getTimestamp(),
