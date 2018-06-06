@@ -33,7 +33,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 @SupportedAnnotationTypes("com.nicolasbarbe.ddd.domain.annotations.DomainEvent")
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_9)
 public class DomainEventProcessor extends AbstractProcessor {
 
     private static final String SUFFIX = "Impl";
