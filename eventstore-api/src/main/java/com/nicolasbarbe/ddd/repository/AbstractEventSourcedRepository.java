@@ -57,7 +57,7 @@ public abstract class AbstractEventSourcedRepository<T extends AggregateRoot> im
     @Override
     public Mono<T> findById(UUID aggregateId) {
         return eventStore.allEvents(aggregateId)
-                .reduce( newInstance(aggregateId), (aggregate, event) -> (T) aggregate.apply(event));
+                .reduce(newInstance(aggregateId), (aggregate, event) -> (T) aggregate.applyFromHistory(event));
     }
 
     public Class<T> getAggregateClass() {

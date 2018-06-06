@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 
 import lombok.Getter;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Getter
 public abstract class AggregateRoot {
@@ -43,11 +44,10 @@ public abstract class AggregateRoot {
 //        changes.clear();
 //    }
 
-    public Flux<Event<?>> loadFromHistory(Flux<Event<?>> history) {
-        return history.doOnNext( event -> {
-            invokeEventHandler(event);
-            this.version = event.getVersion();
-        });
+    public <T> AggregateRoot applyFromHistory(Event<T> event) {
+        invokeEventHandler(event.getData());
+        this.version = event.getVersion();
+        return this;
     }
     
 
