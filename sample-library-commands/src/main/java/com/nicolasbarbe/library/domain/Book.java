@@ -11,5 +11,5 @@ import java.time.LocalDate;
 public class Book {
     private String title;
     private LocalDate publicationDate;
-    private String ISBN;
+    private String isbn;
 }

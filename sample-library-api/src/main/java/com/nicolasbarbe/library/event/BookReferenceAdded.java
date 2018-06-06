@@ -7,6 +7,6 @@ import java.time.LocalDate;
 @Value
 public class BookReferenceAdded {
     private String title;
-    private String ISBN;
+    private String isbn;
     private LocalDate publicationDate;
 }

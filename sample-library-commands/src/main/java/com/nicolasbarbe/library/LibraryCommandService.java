@@ -6,31 +6,28 @@ import com.nicolasbarbe.library.command.BorrowBookCommand;
 import com.nicolasbarbe.library.command.BorrowBookCommandHandler;
 import com.nicolasbarbe.library.command.ReturnBookCommand;
 import com.nicolasbarbe.library.command.ReturnBookCommandHandler;
-import com.nicolasbarbe.library.event.BookReferenceAdded;
-import com.nicolasbarbe.library.event.NewLibraryCreated;
-import com.nicolasbarbe.library.projection.ListOfBooks;
 import com.nicolasbarbe.library.repository.LibraryRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.*;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
-import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 
 @SpringBootApplication
-public class LibraryService {
+public class LibraryCommandService {
 
-	private ListOfBooks listOfBooks;
 
-	public LibraryService() {
+	public LibraryCommandService() {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(LibraryService.class, args);
+		SpringApplication.run(LibraryCommandService.class, args);
 	}
 
 	@Bean
@@ -58,39 +55,24 @@ public class LibraryService {
 
 				.andRoute( RequestPredicates.POST("/commands/returnBook")
 						.and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
-						request -> returnBookCommandHandler(request, returnBookCommandHandler))
-
-				.andRoute( RequestPredicates.GET("/library"),  this::listBooks);
+						request -> returnBookCommandHandler(request, returnBookCommandHandler));
 	}
 
 
 
 	private Mono<ServerResponse> borrowBookCommandHandler(ServerRequest request, BorrowBookCommandHandler borrowBookCommandHandler) {
-		return borrowBookCommandHandler.handle(request.bodyToMono(BorrowBookCommand.class))
+		return borrowBookCommandHandler.handle(
+				request.bodyToMono(BorrowBookCommand.class)
+						.switchIfEmpty( Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing or invalid command."))))
 				.then( ok().build() );
 	}
 
 	private Mono<ServerResponse> returnBookCommandHandler(ServerRequest request, ReturnBookCommandHandler returnBookCommandHandler) {
-		return returnBookCommandHandler.handle(request.bodyToMono(ReturnBookCommand.class))
+		return returnBookCommandHandler.handle(
+				request.bodyToMono(ReturnBookCommand.class)
+						.switchIfEmpty( Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing or invalid command."))))
 				.then( ok().build() );
 	}
 
-	private Mono<ServerResponse> listBooks(ServerRequest request) {
-		return this.getEventStore().listEventStreams()
-				// we assume there is only one event stream
-				.take(1)
-				.flatMap( stream -> this.getEventStore().allEvents(stream.getEventStreamId()))
-				.log()
-				.reduce( new ListOfBooks(), (books, event) -> {
-					Object payload = event.getData();
-					 if ( payload instanceof  BookReferenceAdded) {
-						 books.getBooks().add(new ListOfBooks.Book(((BookReferenceAdded) payload).getTitle()));
-					 } else if(payload instanceof  NewLibraryCreated) {
-						 // do nothing
-					 }
-					 return books;
-				})
-				.flatMap( books -> ok().body( fromObject(books) ));
-	}
 
 }

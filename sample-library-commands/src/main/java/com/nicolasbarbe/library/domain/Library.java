@@ -3,7 +3,11 @@ package com.nicolasbarbe.library.domain;
 
 import com.nicolasbarbe.ddd.domain.AggregateRoot;
 import com.nicolasbarbe.ddd.domain.EventHandler;
-import com.nicolasbarbe.library.event.*;
+
+import com.nicolasbarbe.library.event.BookCopyBorrowed;
+import com.nicolasbarbe.library.event.BookCopyReturned;
+import com.nicolasbarbe.library.event.BookReferenceAdded;
+import com.nicolasbarbe.library.event.NewLibraryCreated;
 import com.nicolasbarbe.library.exception.BookReferenceNotFoundException;
 import com.nicolasbarbe.library.exception.NotEnoughCopyAvailableException;
 import org.springframework.util.Assert;
@@ -20,52 +24,56 @@ public class Library  extends AggregateRoot {
         this.apply( new NewLibraryCreated() );
     }
 
-    public Library addReference(String title, String ISBN, LocalDate publicationDate) {
-        Assert.hasLength(title, "Book reference title cannot be empty or null.");
-        Assert.hasLength(ISBN, "Book reference ISBN cannot be empty or null.");
-        Assert.notNull(publicationDate, "Book publication date cannot be null.");
-
-        return (Library) apply(new BookReferenceAdded(title, ISBN, publicationDate));
+    public Library(UUID uuid) {
+        super(uuid);
     }
 
-    public Library borrowBook(String bookISBN) {
-        if(!copies.containsKey(bookISBN)) {
-            throw new BookReferenceNotFoundException("Book reference {0} cannot be found.", bookISBN );
+    public Library addReference(String title, String isbn, LocalDate publicationDate) {
+        Assert.hasLength(title, "Book reference title cannot be empty or null.");
+        Assert.hasLength(isbn, "Book reference ISBN cannot be empty or null.");
+        Assert.notNull(publicationDate, "Book publication date cannot be null.");
+
+        return (Library) apply(new BookReferenceAdded(title, isbn, publicationDate));
+    }
+
+    public Library borrowBook(String isbn) {
+        if(!copies.containsKey(isbn)) {
+            throw new BookReferenceNotFoundException("Book reference {0} cannot be found.", isbn );
         }
 
-        if(!copies.get(bookISBN).hasAvailableCopy()) {
+        if(!copies.get(isbn).hasAvailableCopy()) {
             throw new NotEnoughCopyAvailableException("No more copies available.");
         }
 
-        return (Library) apply(new BookCopyBorrowed(bookISBN));
+        return (Library) apply(new BookCopyBorrowed(isbn));
     }
 
-    public Library returnBook(String bookISBN) {
-        if(!copies.containsKey(bookISBN)) {
-            throw new BookReferenceNotFoundException("Book reference {0} cannot be found.", bookISBN );
+    public Library returnBook(String isbn) {
+        if(!copies.containsKey(isbn)) {
+            throw new BookReferenceNotFoundException("Book reference {0} cannot be found.", isbn );
         }
-        return (Library) apply(new BookCopyReturned(bookISBN));
+        return (Library) apply(new BookCopyReturned(isbn));
     }
 
     @EventHandler
     protected void handle(BookCopyReturned event) {
-        this.copies.get(event.getISBN()).addCopy();
+        this.copies.get(event.getIsbn()).addCopy();
     }
 
     @EventHandler
     protected void handle(BookCopyBorrowed event) {
-        this.copies.get(event.getISBN()).removeCopy();
+        this.copies.get(event.getIsbn()).removeCopy();
     }
 
 
     @EventHandler
     protected void handle(BookReferenceAdded event) {
         this.copies.put(
-                event.getISBN(),
+                event.getIsbn(),
                 BookCopies.builder(
                         Book.builder()
                                 .title(event.getTitle())
-                                .ISBN(event.getISBN())
+                                .isbn(event.getIsbn())
                                 .publicationDate(event.getPublicationDate())
                                 .build() )
                 .build());

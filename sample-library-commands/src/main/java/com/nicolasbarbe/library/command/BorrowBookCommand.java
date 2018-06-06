@@ -5,5 +5,5 @@ import lombok.Value;
 
 @Value
 public class BorrowBookCommand implements Command {
-    private String ISBN;
+    private String isbn;
 }

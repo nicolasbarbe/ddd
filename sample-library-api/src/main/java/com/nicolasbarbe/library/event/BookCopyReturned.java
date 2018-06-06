@@ -4,5 +4,5 @@ import lombok.Value;
 
 @Value
 public class BookCopyReturned {
-    private String ISBN;
+    private String isbn;
 }

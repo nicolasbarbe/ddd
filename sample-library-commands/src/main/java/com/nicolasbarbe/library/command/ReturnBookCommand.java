@@ -9,5 +9,5 @@ import java.util.Date;
 public class ReturnBookCommand implements Command {
     private String title;
     private Date publicationDate;
-    private String ISBN;
+    private String isbn;
 }

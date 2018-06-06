@@ -18,7 +18,7 @@ public class ReturnBookCommandHandler extends BookCommandHandler<ReturnBookComma
         UUID libraryID = getRepository().getLibrary().getAggregateId();
 
         return command
-                .zipWith(this.getRepository().findById(libraryID), (c, library) -> library.returnBook(c.getISBN()))
+                .zipWith(this.getRepository().findById(libraryID), (c, library) -> library.returnBook(c.getIsbn()))
                 .flatMap( library -> this.getRepository().save(library, 0))
                 .then(Mono.empty());
     }
