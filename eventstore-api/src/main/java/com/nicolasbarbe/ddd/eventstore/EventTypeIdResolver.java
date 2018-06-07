@@ -29,6 +29,7 @@ public class EventTypeIdResolver extends TypeIdResolverBase {
         return idFromValueAndType(obj, obj.getClass());
     }
 
+    // todo turn into generic code
     @Override
     public String idFromValueAndType(Object obj, Class<?> subType) {
         String typeId = null;
@@ -38,10 +39,20 @@ public class EventTypeIdResolver extends TypeIdResolverBase {
                 break;
             case "BookReferenceAdded":
                 typeId = "BookReferenceAdded";
+                break;
+            case "BookCopyBorrowed":
+                typeId = "BookCopyBorrowed";
+                break;
+            case "BookCopyReturned":
+                typeId = "BookCopyReturned";
+                break;
+            default:
+                return null;
         }
         return typeId;
     }
 
+    // todo turn into generic code
     @Override
     public JavaType typeFromId(DatabindContext context, String id) {
         Class<?> subType = null;
@@ -59,6 +70,24 @@ public class EventTypeIdResolver extends TypeIdResolverBase {
                 } catch (ClassNotFoundException e) {
                     return TypeFactory.unknownType();
                 }
+                break;
+            case "BookCopyBorrowed":
+                try {
+                    subType = Class.forName("com.nicolasbarbe.library.event.BookCopyBorrowed");
+                } catch (ClassNotFoundException e) {
+                    return TypeFactory.unknownType();
+                }
+                break;
+            case "BookCopyReturned":
+                try {
+                    subType = Class.forName("com.nicolasbarbe.library.event.BookCopyReturned");
+                } catch (ClassNotFoundException e) {
+                    return TypeFactory.unknownType();
+                }
+                break;
+
+            default:
+                return TypeFactory.unknownType();
         }
         return context.constructSpecializedType(baseType, subType);
     }
