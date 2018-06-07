@@ -19,7 +19,7 @@ public class ReturnBookCommandHandler extends BookCommandHandler<ReturnBookComma
 
         return command
                 .zipWith(this.getRepository().findById(libraryID), (c, library) -> library.returnBook(c.getIsbn()))
-                .flatMap( library -> this.getRepository().save(library, 0))
+                .flatMap( library -> this.getRepository().save(library))
                 .then(Mono.empty());
     }
 }

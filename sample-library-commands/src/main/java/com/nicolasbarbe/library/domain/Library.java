@@ -28,12 +28,13 @@ public class Library  extends AggregateRoot {
         super(uuid);
     }
 
-    public Library addReference(String title, String isbn, LocalDate publicationDate) {
+    public Library addReference(String title, String isbn, LocalDate publicationDate, int copies) {
         Assert.hasLength(title, "Book reference title cannot be empty or null.");
         Assert.hasLength(isbn, "Book reference ISBN cannot be empty or null.");
         Assert.notNull(publicationDate, "Book publication date cannot be null.");
+        Assert.isTrue(copies >= 0, "Copies must be positive");
 
-        return (Library) apply(new BookReferenceAdded(title, isbn, publicationDate));
+        return (Library) apply(new BookReferenceAdded(title, isbn, publicationDate, copies));
     }
 
     public Library borrowBook(String isbn) {
@@ -75,7 +76,8 @@ public class Library  extends AggregateRoot {
                                 .title(event.getTitle())
                                 .isbn(event.getIsbn())
                                 .publicationDate(event.getPublicationDate())
-                                .build() )
+                                .build(),
+                        event.getCopies())
                 .build());
     }
 

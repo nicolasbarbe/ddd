@@ -35,21 +35,25 @@ public class BootstrapData implements ApplicationRunner {
                 Tuples.of(
                         "Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation",
                         "0321601912",
-                        LocalDate.of(2010, Month.AUGUST, 6)),
+                        LocalDate.of(2010, Month.AUGUST, 6),
+                        2),
                 Tuples.of(
                         "The DevOps Handbook: How to Create World-Class Agility, Reliability, and Security in Technology Organizations",
                         "1942788002",
-                        LocalDate.of(2016, Month.OCTOBER, 6)),
+                        LocalDate.of(2016, Month.OCTOBER, 6),
+                        3),
                 Tuples.of(
                         "Site Reliability Engineering: How Google Runs Production Systems",
                         "149192912X",
-                        LocalDate.of(2016, Month.APRIL, 16)),
+                        LocalDate.of(2016, Month.APRIL, 16),
+                        0),
                 Tuples.of(
                         "Release It!: Design and Deploy Production-Ready Software",
                         "1680502395",
-                        LocalDate.of(2018, Month.JANUARY, 16)))
-                .map( ref -> library.addReference(ref.getT1(), ref.getT2(), ref.getT3()) )
-                .then( this.repository.save(library, 0) )
+                        LocalDate.of(2018, Month.JANUARY, 16),
+                        5))
+                .map( ref -> library.addReference(ref.getT1(), ref.getT2(), ref.getT3(), ref.getT4()) )
+                .then( this.repository.save(library) )
                 .subscribe( v -> logger.info("Data bootstrapped successfully."), e -> logger.error("Something wrong happened while bootstrapping the data.", e));
     }
 

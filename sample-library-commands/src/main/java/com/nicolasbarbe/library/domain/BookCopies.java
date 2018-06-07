@@ -17,11 +17,15 @@ public class BookCopies  {
         return new BookCopiesBuilder();
     }
 
-    public static BookCopiesBuilder builder( Book book ){
+    public static BookCopiesBuilder builder( Book book ) {
+        return BookCopies.builder(book, 0);
+    }
+
+    public static BookCopiesBuilder builder( Book book, int quantity ) {
         Assert.notNull( book, "Book cannot be null." );
         return BookCopies.builder()
                 .book(book)
-                .quantity(0);
+                .quantity(quantity);
     }
 
     public void removeCopy() {

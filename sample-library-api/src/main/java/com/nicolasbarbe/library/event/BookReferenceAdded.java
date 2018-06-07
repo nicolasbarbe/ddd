@@ -9,4 +9,5 @@ public class BookReferenceAdded {
     private String title;
     private String isbn;
     private LocalDate publicationDate;
+    private int    copies;
 }
