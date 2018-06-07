@@ -10,10 +10,9 @@ public interface EventSourcedRepository<T extends AggregateRoot> {
     /**
      * todo doc
      * @param aggregate
-     * @param expectedVersion
      * @return
      */
-    public Mono<Long> save(T aggregate, int expectedVersion);
+    public Mono<Long> save(T aggregate);
 
     /**
      * todo doc

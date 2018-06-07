@@ -22,7 +22,7 @@ public abstract class AbstractEventSourcedRepository<T extends AggregateRoot> im
     }
 
     @Override
-    public Mono<Long> save(T aggregate, int expectedVersion) {
+    public Mono<Long> save(T aggregate) {
 
         Mono<UUID> aggregateId;
 
@@ -51,7 +51,7 @@ public abstract class AbstractEventSourcedRepository<T extends AggregateRoot> im
                 eventStore.appendToEventStream(
                         aggId,
                         aggregate.listChanges(),
-                        expectedVersion));
+                        aggregate.getOriginalVersion() + 1));
     }
 
     @Override

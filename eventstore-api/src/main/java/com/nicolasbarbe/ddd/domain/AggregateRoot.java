@@ -23,6 +23,11 @@ public abstract class AggregateRoot {
 
     private List<Event<?>>   changes;
     private UUID             aggregateId;
+
+    // aggregate original version once re-hydrated from the event stream
+    private int              originalVersion;
+
+    // aggregate version including pending changes
     private int              version;
 
     public AggregateRoot() {
@@ -30,9 +35,10 @@ public abstract class AggregateRoot {
     }
 
     public AggregateRoot(UUID uuid) {
-        changes      = new ArrayList<>();
-        aggregateId  = uuid;
-        version      = -1;
+        changes         = new ArrayList<>();
+        aggregateId     = uuid;
+        originalVersion = -1;
+        version         = -1;
     }
 
     public Flux<Event> listChanges() {
@@ -46,7 +52,8 @@ public abstract class AggregateRoot {
 
     public <T> AggregateRoot applyFromHistory(Event<T> event) {
         invokeEventHandler(event.getData());
-        this.version = event.getVersion();
+        this.version         = event.getVersion();
+        this.originalVersion = this.version;
         return this;
     }
     
