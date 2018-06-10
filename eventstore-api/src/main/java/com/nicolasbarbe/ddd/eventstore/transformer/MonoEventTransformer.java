@@ -1,6 +1,6 @@
 package com.nicolasbarbe.ddd.eventstore.transformer;
 
-import com.nicolasbarbe.ddd.eventstore.Event;
+import com.nicolasbarbe.ddd.domain.Event;
 import reactor.core.publisher.Mono;
 
 import java.util.function.Function;

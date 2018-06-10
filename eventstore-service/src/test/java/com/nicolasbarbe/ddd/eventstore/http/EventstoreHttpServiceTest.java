@@ -3,6 +3,7 @@ package com.nicolasbarbe.ddd.eventstore.http;
 import static com.nicolasbarbe.ddd.eventstore.http.HttpHeaderAttributes.ES_StreamPosition;
 import static org.mockito.BDDMockito.given;
 
+import com.nicolasbarbe.ddd.domain.Event;
 import com.nicolasbarbe.ddd.eventstore.*;
 
 import org.junit.Before;

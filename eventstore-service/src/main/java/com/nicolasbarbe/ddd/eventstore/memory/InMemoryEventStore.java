@@ -1,6 +1,7 @@
 package com.nicolasbarbe.ddd.eventstore.memory;
 
 
+import com.nicolasbarbe.ddd.domain.Event;
 import com.nicolasbarbe.ddd.eventstore.*;
 
 

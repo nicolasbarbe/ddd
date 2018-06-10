@@ -1,12 +1,11 @@
 package com.nicolasbarbe.ddd.eventstore.transformer.cloudevents;
 
-import com.nicolasbarbe.ddd.eventstore.Event;
-import com.nicolasbarbe.ddd.eventstore.transformer.FluxEventTransformer;
+import com.nicolasbarbe.ddd.domain.Event;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Transform a {@link com.nicolasbarbe.ddd.eventstore.Event} into {@link com.nicolasbarbe.ddd.eventstore.transformer.cloudevents.CloudEvent}
+ * Transform a {@link Event} into {@link com.nicolasbarbe.ddd.eventstore.transformer.cloudevents.CloudEvent}
  */
 public class CloudEventsTransformer {
 

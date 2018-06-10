@@ -1,6 +1,5 @@
-package com.nicolasbarbe.ddd.eventstore;
+package com.nicolasbarbe.ddd.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import org.springframework.util.Assert;
@@ -21,7 +20,7 @@ public class Event<T>  {
     @JsonTypeInfo(use=JsonTypeInfo.Id.CUSTOM, include=JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "eventType", visible = true,  defaultImpl = Map.class)
     @JsonTypeIdResolver(EventTypeIdResolver.class)
     private T   data;
-
+    
     private static <T> EventBuilder<T> builder() {
         return new EventBuilder<T>();
     }

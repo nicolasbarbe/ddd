@@ -1,15 +1,20 @@
 package com.nicolasbarbe.library;
 
+import com.nicolasbarbe.ddd.EventStoreAPIConfiguration;
 import com.nicolasbarbe.ddd.eventstore.EventStore;
 import com.nicolasbarbe.ddd.eventstore.http.HttpClientEventStore;
+import com.nicolasbarbe.ddd.eventstore.http.HttpClientEventStoreConfiguration;
 import com.nicolasbarbe.library.command.BorrowBookCommand;
 import com.nicolasbarbe.library.command.BorrowBookCommandHandler;
 import com.nicolasbarbe.library.command.ReturnBookCommand;
 import com.nicolasbarbe.library.command.ReturnBookCommandHandler;
 import com.nicolasbarbe.library.repository.LibraryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.*;
@@ -20,9 +25,12 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 
 
 @SpringBootApplication
+@Import( {
+		HttpClientEventStoreConfiguration.class,
+		EventStoreAPIConfiguration.class
+} )
 public class LibraryCommandService {
-
-
+	
 	public LibraryCommandService() {
 	}
 
@@ -38,11 +46,6 @@ public class LibraryCommandService {
 	@Bean
 	protected ReturnBookCommandHandler getReturnBookCommandHandler(LibraryRepository repository) {
 		return new ReturnBookCommandHandler(repository);
-	}
-
-	@Bean
-	protected EventStore getEventStore() {
-		return new HttpClientEventStore("http://localhost:8080");
 	}
 
 

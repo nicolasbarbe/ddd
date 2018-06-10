@@ -1,11 +1,7 @@
 package com.nicolasbarbe.ddd.eventstore;
 
 
-import java.net.URI;
-import java.util.UUID;
-
-import lombok.Value;
-import org.springframework.http.MediaType;
+import com.nicolasbarbe.ddd.domain.Event;
 
 import reactor.core.publisher.Flux;
 

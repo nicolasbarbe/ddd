@@ -1,5 +1,6 @@
 package com.nicolasbarbe.ddd.eventstore;
 
+import com.nicolasbarbe.ddd.domain.Event;
 import com.nicolasbarbe.ddd.eventstore.transformer.MonoEventTransformer;
 import com.nicolasbarbe.ddd.eventstore.transformer.identity.IdentityTransformer;
 import com.nicolasbarbe.ddd.eventstore.transformer.FluxEventTransformer;

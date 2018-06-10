@@ -3,22 +3,26 @@ package com.nicolasbarbe.ddd.eventstore.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.nicolasbarbe.ddd.eventstore.Event;
+import com.nicolasbarbe.ddd.domain.Event;
 import com.nicolasbarbe.ddd.eventstore.EventStore;
 import com.nicolasbarbe.ddd.eventstore.EventStream;
 import com.nicolasbarbe.ddd.eventstore.StreamNotFoundException;
 
 import com.nicolasbarbe.ddd.eventstore.transformer.FluxEventTransformer;
 import com.nicolasbarbe.ddd.eventstore.transformer.MonoEventTransformer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.http.converter.json.SpringHandlerInstantiator;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-
-//import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.netty.channel.ChannelOption;
 import reactor.core.publisher.Flux;
@@ -26,19 +30,24 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
+@Component
 public class HttpClientEventStore implements EventStore {
 
     private WebClient client;
 
     private ObjectMapper objectMapper;
-
-    public HttpClientEventStore(String address) {
+    
+    public HttpClientEventStore(HttpClientEventStoreConfiguration configuration, ApplicationContext applicationContext ) {
+        Assert.notNull(configuration, "Configuration of the eventstore cannot be loaded");
+        Assert.notNull(configuration.getAddress(), "Address of the eventstore server is missing");
+        Assert.notNull(applicationContext, "Application context not valid");
 
        // Spring boot webclient does not leverage jackson customization via application.property ...
         ObjectMapper  objectMapper = Jackson2ObjectMapperBuilder.json().build();
 
         // Set to false if using empty events (without attributes)
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        objectMapper.setHandlerInstantiator(new SpringHandlerInstantiator(applicationContext.getAutowireCapableBeanFactory()));
 
         ExchangeStrategies strategies = ExchangeStrategies
                 .builder()
@@ -49,10 +58,10 @@ public class HttpClientEventStore implements EventStore {
 
         ReactorClientHttpConnector connector = new ReactorClientHttpConnector(options ->
                         options.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000));
-        
+
         this.client = WebClient.builder()
                 .clientConnector(connector)
-                .baseUrl(address)
+                .baseUrl(configuration.getAddress())
                 .exchangeStrategies(strategies)
                 .build();
     }

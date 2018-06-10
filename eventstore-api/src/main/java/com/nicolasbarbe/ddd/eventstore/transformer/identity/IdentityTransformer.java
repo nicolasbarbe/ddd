@@ -1,9 +1,7 @@
 package com.nicolasbarbe.ddd.eventstore.transformer.identity;
 
 
-import com.nicolasbarbe.ddd.eventstore.Event;
-import com.nicolasbarbe.ddd.eventstore.transformer.FluxEventTransformer;
-import org.reactivestreams.Publisher;
+import com.nicolasbarbe.ddd.domain.Event;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

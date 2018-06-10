@@ -1,5 +1,6 @@
 package com.nicolasbarbe.ddd.eventstore;
 
+import com.nicolasbarbe.ddd.EventStoreAPIConfiguration;
 import com.nicolasbarbe.ddd.eventstore.http.Handlers;
 
 import com.nicolasbarbe.ddd.eventstore.memory.InMemoryEventStore;
@@ -19,6 +20,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 
 @SpringBootApplication
+@Import( EventStoreAPIConfiguration.class)
 public class EventStoreHttpService {
 
 	public static void main(String[] args) {

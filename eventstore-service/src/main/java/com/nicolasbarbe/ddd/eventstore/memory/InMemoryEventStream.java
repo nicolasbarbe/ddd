@@ -1,6 +1,6 @@
 package com.nicolasbarbe.ddd.eventstore.memory;
 
-import com.nicolasbarbe.ddd.eventstore.Event;
+import com.nicolasbarbe.ddd.domain.Event;
 import com.nicolasbarbe.ddd.eventstore.EventStream;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;

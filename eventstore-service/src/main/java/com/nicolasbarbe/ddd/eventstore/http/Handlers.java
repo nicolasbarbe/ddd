@@ -1,7 +1,7 @@
 package com.nicolasbarbe.ddd.eventstore.http;
 
 import com.nicolasbarbe.ddd.common.http.HttpResponse;
-import com.nicolasbarbe.ddd.eventstore.Event;
+import com.nicolasbarbe.ddd.domain.Event;
 import com.nicolasbarbe.ddd.eventstore.EventStore;
 import com.nicolasbarbe.ddd.eventstore.EventStream;
 import com.nicolasbarbe.ddd.eventstore.StreamNotFoundException;

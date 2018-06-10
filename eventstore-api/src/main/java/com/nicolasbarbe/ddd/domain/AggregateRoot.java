@@ -1,7 +1,5 @@
 package com.nicolasbarbe.ddd.domain;
 
-import com.nicolasbarbe.ddd.eventstore.Event;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
 
 import lombok.Getter;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Getter
 public abstract class AggregateRoot {
@@ -62,7 +59,7 @@ public abstract class AggregateRoot {
         invokeEventHandler(event);
         this.changes.add(
                 Event.<T>builder(
-                        event.getClass().getSimpleName(),
+                        EventRegistry.buildEventId(event.getClass()),
                         ++version,
                         Timestamp.now())
                         .data(event)
