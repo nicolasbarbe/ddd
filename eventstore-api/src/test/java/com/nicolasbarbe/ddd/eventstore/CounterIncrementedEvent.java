@@ -1,11 +1,12 @@
 package com.nicolasbarbe.ddd.eventstore;
 
 
+import com.nicolasbarbe.ddd.domain.DomainEvent;
 import lombok.Value;
 
 @Value
+@DomainEvent
 public class CounterIncrementedEvent {
-    public static final String EVENT_TYPE = CounterIncrementedEvent.class.getSimpleName();
 
     private int increment;
 

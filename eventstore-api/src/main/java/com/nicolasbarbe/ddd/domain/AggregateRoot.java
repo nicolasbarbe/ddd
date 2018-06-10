@@ -59,7 +59,6 @@ public abstract class AggregateRoot {
         invokeEventHandler(event);
         this.changes.add(
                 Event.<T>builder(
-                        EventRegistry.buildEventId(event.getClass()),
                         ++version,
                         Timestamp.now())
                         .data(event)

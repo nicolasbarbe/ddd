@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -31,6 +32,9 @@ import java.util.UUID;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {EventStoreHttpService.class, Handlers.class })
 @WebFluxTest
+@TestPropertySource(properties = {
+		"eventsource.events.package=com.nicolasbarbe.ddd.eventstore",
+		})
 public class EventstoreHttpServiceTest {
 
 	@Autowired
@@ -92,8 +96,8 @@ public class EventstoreHttpServiceTest {
 
 		BDDMockito.given(this.eventStore.eventsFromPosition(streamId, 0))
 				.willReturn( Flux.just(
-						Event.builder( "test", 1, Timestamp.now()).build(),
-						Event.builder( "test", 2, Timestamp.now()).build()));
+						Event.builder( 1, Timestamp.now()).build(),
+						Event.builder( 2, Timestamp.now()).build()));
 
 		webClient.delete()
 				.uri("/streams/{streamId}/{position}", streamId, 0)
@@ -104,7 +108,7 @@ public class EventstoreHttpServiceTest {
 		webClient.patch()
 				.uri("/streams/{streamId}/{position}", streamId, 0)
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(Mono.just(Event.builder( "test", 1, Timestamp.now()).build()), Event.class)
+				.body(Mono.just(Event.builder(  1, Timestamp.now()).build()), Event.class)
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus().isBadRequest();
@@ -112,7 +116,7 @@ public class EventstoreHttpServiceTest {
 		webClient.put()
 				.uri("/streams/{streamId}/{position}", streamId, 0)
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(Mono.just( Event.builder( "test", 1, Timestamp.now()).build()), Event.class)
+				.body(Mono.just( Event.builder(  1, Timestamp.now()).build()), Event.class)
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus().isBadRequest();
