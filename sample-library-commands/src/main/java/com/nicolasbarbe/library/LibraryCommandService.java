@@ -1,7 +1,6 @@
 package com.nicolasbarbe.library;
 
 import com.nicolasbarbe.ddd.EventStoreAPIConfiguration;
-import com.nicolasbarbe.ddd.eventstore.EventStore;
 import com.nicolasbarbe.ddd.eventstore.http.HttpClientEventStore;
 import com.nicolasbarbe.ddd.eventstore.http.HttpClientEventStoreConfiguration;
 import com.nicolasbarbe.library.command.BorrowBookCommand;
