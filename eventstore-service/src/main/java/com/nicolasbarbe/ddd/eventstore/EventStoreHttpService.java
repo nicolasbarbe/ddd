@@ -41,8 +41,8 @@ public class EventStoreHttpService {
 	protected RouterFunction<ServerResponse> routes(Handlers handlers) {
 		return RouterFunctions
 				.route(    POST( "/streams").and(accept(APPLICATION_JSON)),              handlers::createEventStream)
-				.andRoute( POST( "/streams/{streamId}").and(accept(APPLICATION_JSON)),   handlers::appendToEventStream)
 				.andRoute( GET(  "/streams"),                                            handlers::listEventStreams)
+				.andRoute( POST( "/streams/{streamId}").and(accept(APPLICATION_JSON)),   handlers::appendToEventStream)
 				.andRoute( GET(  "/streams/{streamId}").and(accept(APPLICATION_JSON)),   handlers::eventsFromPosition)
 				.andRoute( GET(  "/streams/{streamId}").and(accept(TEXT_EVENT_STREAM)),  handlers::listenToEventStream)
 				.andRoute( GET(  "/streams/{streamId}/{position}"),                      handlers::eventAtPosition)
