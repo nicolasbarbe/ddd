@@ -6,7 +6,7 @@ import lombok.Value;
 import java.util.Date;
 
 @Value
-public class ReturnBookCommand implements Command {
+public class ReturnBookCommand extends Command {
     private String title;
     private Date publicationDate;
     private String isbn;

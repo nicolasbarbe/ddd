@@ -1,17 +1,13 @@
 package com.nicolasbarbe.library;
 
-import com.nicolasbarbe.ddd.EventStoreAPIConfiguration;
-import com.nicolasbarbe.ddd.eventstore.EventStore;
 import com.nicolasbarbe.ddd.eventstore.http.HttpClientEventStore;
 import com.nicolasbarbe.ddd.eventstore.http.HttpClientEventStoreConfiguration;
 import com.nicolasbarbe.library.event.BookCopyBorrowed;
 import com.nicolasbarbe.library.event.BookReferenceAdded;
 import com.nicolasbarbe.library.event.NewLibraryCreated;
 import com.nicolasbarbe.library.projection.MostSuccessfullBooks;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.reactive.function.server.*;
@@ -22,16 +18,14 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 
 
 @SpringBootApplication
-@Import( {
-		HttpClientEventStoreConfiguration.class,
-		EventStoreAPIConfiguration.class
-} )public class LibraryQueryService {
+@Import( { HttpClientEventStoreConfiguration.class } )
+public class LibraryQueryService {
 
 	private MostSuccessfullBooks listOfBooks;
 
-	private EventStore eventStore;
+	private HttpClientEventStore eventStore;
 
-	public LibraryQueryService(EventStore eventStore) {
+	public LibraryQueryService(HttpClientEventStore eventStore) {
 		this.eventStore = eventStore;
 	}
 

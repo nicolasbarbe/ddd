@@ -1,0 +1,8 @@
+
+dependencies {
+    compile(project(':eventstore-client'))
+
+
+    compileOnly('org.projectlombok:lombok')
+    testCompileOnly('org.projectlombok:lombok')
+}

@@ -1,6 +1,0 @@
-
-dependencies {
-    compile project(':eventstore-api')
-    compileOnly('org.projectlombok:lombok')
-    testCompileOnly('org.projectlombok:lombok')
-}

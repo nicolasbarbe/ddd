@@ -1,7 +1,8 @@
 package com.nicolasbarbe.library.domain;
 
 
-import com.nicolasbarbe.ddd.domain.IllegalDomainStateException;
+
+import com.nicolasbarbe.ddd.IllegalDomainStateException;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.util.Assert;

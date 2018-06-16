@@ -1,7 +1,6 @@
 package com.nicolasbarbe.ddd.eventstore.memory;
 
-import com.nicolasbarbe.ddd.domain.Event;
-import com.nicolasbarbe.ddd.eventstore.EventStream;
+import com.nicolasbarbe.ddd.eventstore.api.Event;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
@@ -9,6 +8,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static reactor.core.publisher.Flux.push;
 
@@ -19,8 +19,8 @@ public class InMemoryEventStream {
 
     private static final int STREAM_HISTORY_INITIAL_CAPACITY = 1000;
 
-    // Information related to the stream
-    private EventStream eventStream;
+    // Eventstream identifier
+    private UUID eventStreamId;
 
     // Events are published on this hotflux as soon as they are commited
     private Flux<Event> hotFlux;
@@ -33,10 +33,10 @@ public class InMemoryEventStream {
 
 
 
-    public InMemoryEventStream(EventStream eventStream) {
-        this.eventStream = eventStream;
-        this.history    = new ArrayList<>(STREAM_HISTORY_INITIAL_CAPACITY);
-        this.hotFlux    = Flux.<Event>push(sink -> this.sink = sink).publish().autoConnect(0);
+    public InMemoryEventStream(UUID eventStreamId) {
+        this.eventStreamId = eventStreamId;
+        this.history       = new ArrayList<>(STREAM_HISTORY_INITIAL_CAPACITY);
+        this.hotFlux       = Flux.<Event>push(sink -> this.sink = sink).publish().autoConnect(0);
     }
 
     public int nextPosition() {
@@ -63,7 +63,7 @@ public class InMemoryEventStream {
         return Mono.just(this.history.get(position));
     }
 
-    public EventStream getEventStream() {
-        return eventStream;
+    public UUID getEventStreamId() {
+        return eventStreamId;
     }
 }

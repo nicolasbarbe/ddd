@@ -1,9 +1,8 @@
 package com.nicolasbarbe.library.domain;
 
 
-import com.nicolasbarbe.ddd.domain.AggregateRoot;
-import com.nicolasbarbe.ddd.domain.EventHandler;
-
+import com.nicolasbarbe.ddd.AggregateRoot;
+import com.nicolasbarbe.ddd.event.EventHandler;
 import com.nicolasbarbe.library.event.BookCopyBorrowed;
 import com.nicolasbarbe.library.event.BookCopyReturned;
 import com.nicolasbarbe.library.event.BookReferenceAdded;

@@ -1,10 +1,8 @@
 package com.nicolasbarbe.ddd.eventstore.http;
 
-import com.nicolasbarbe.ddd.common.http.HttpResponse;
-import com.nicolasbarbe.ddd.domain.Event;
-import com.nicolasbarbe.ddd.eventstore.EventStore;
-import com.nicolasbarbe.ddd.eventstore.EventStream;
-import com.nicolasbarbe.ddd.eventstore.StreamNotFoundException;
+import com.nicolasbarbe.ddd.eventstore.api.Event;
+import com.nicolasbarbe.ddd.eventstore.api.EventStore;
+import com.nicolasbarbe.ddd.eventstore.api.StreamNotFoundException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,17 +10,19 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.UUID;
 
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ResponseStatusException;
 
 import reactor.core.publisher.Mono;
 
-import static org.springframework.web.reactive.function.BodyExtractors.toMono;
 import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 
+@Component
 public class Handlers {
 
     private EventStore eventstore;
@@ -33,7 +33,7 @@ public class Handlers {
 
     public Mono<ServerResponse> createEventStream(ServerRequest request) {
         return this.eventstore.createEventStream()
-                .flatMap( s -> ServerResponse.created( URI.create( "/streams/" + s.getEventStreamId().toString())).body(fromObject(s)) );
+                .flatMap( uuid -> ServerResponse.created( URI.create( "/streams/" + uuid)).body(fromObject(uuid)) );
     }
 
     public Mono<ServerResponse> appendToEventStream(ServerRequest request) {
@@ -48,7 +48,7 @@ public class Handlers {
     public Mono<ServerResponse> listEventStreams(ServerRequest request) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(eventstore.listEventStreams(), EventStream.class);
+                .body(eventstore.listEventStreams(), UUID.class);
     }
 
     public Mono<ServerResponse> listenToEventStream(ServerRequest request) {

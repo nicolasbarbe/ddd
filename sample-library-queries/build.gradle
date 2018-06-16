@@ -4,9 +4,9 @@ apply plugin: 'org.springframework.boot'
 dependencies {
     compileOnly('org.projectlombok:lombok')
     compile('org.springframework.boot:spring-boot-starter-webflux')
-    
-    compile project(':eventstore-client')
-    compile project(':sample-library-api')
+
+    compile project(':eventstore-queries')
+    compile project(':sample-library-common')
     
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('io.projectreactor:reactor-test')

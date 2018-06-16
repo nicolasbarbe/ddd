@@ -1,1 +1,1 @@
-include  ':eventstore-api', ':eventstore-service', ':eventstore-client', ':sample-library-commands', ':sample-library-queries', ':sample-library-api'
+include  ':eventstore-service', ':eventstore-client', ':eventstore-commands', ':eventstore-queries', ':sample-library-commands', ':sample-library-queries', ':sample-library-common'

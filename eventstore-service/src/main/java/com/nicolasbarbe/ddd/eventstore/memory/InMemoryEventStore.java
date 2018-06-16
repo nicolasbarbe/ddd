@@ -1,15 +1,15 @@
 package com.nicolasbarbe.ddd.eventstore.memory;
 
 
-import com.nicolasbarbe.ddd.domain.Event;
-import com.nicolasbarbe.ddd.eventstore.*;
+import com.nicolasbarbe.ddd.eventstore.api.Event;
 
 
 import java.util.*;
 
 
-import com.nicolasbarbe.ddd.eventstore.transformer.FluxEventTransformer;
-import com.nicolasbarbe.ddd.eventstore.transformer.MonoEventTransformer;
+import com.nicolasbarbe.ddd.eventstore.api.ConcurrentStreamModificationException;
+import com.nicolasbarbe.ddd.eventstore.api.EventStore;
+import com.nicolasbarbe.ddd.eventstore.api.StreamNotFoundException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
@@ -32,10 +32,10 @@ public class InMemoryEventStore implements EventStore {
         this.streams = new HashMap<>(HISTORY_INITIAL_CAPACITY);
     }
 
-    public Mono<EventStream> createEventStream() {
-        EventStream eventStream = new EventStream(UUID.randomUUID());
-        this.streams.put(eventStream.getEventStreamId(), new InMemoryEventStream(eventStream));
-        return Mono.just(eventStream);
+    public Mono<UUID> createEventStream() {
+        UUID eventStreamId = UUID.randomUUID();
+        this.streams.put(eventStreamId, new InMemoryEventStream(eventStreamId));
+        return Mono.just(eventStreamId);
     }
 
     @Override
@@ -64,20 +64,19 @@ public class InMemoryEventStore implements EventStore {
     }
 
     @Override
-    public <T> Flux<T> listenToEventStream(UUID eventStreamId, FluxEventTransformer<T> transformer) {
+    public Flux<Event> listenToEventStream(UUID eventStreamId) {
         Assert.notNull(eventStreamId, "event stream identifier, cannot be null");
 
         if(!streams.containsKey(eventStreamId)) {
             return Flux.error(new StreamNotFoundException("Stream {0} cannot be found.", eventStreamId.toString()));
         } else {
             return this.streams.get(eventStreamId)
-                    .listen()
-                    .transform(transformer);
+                    .listen();
         }
     }
 
     @Override
-    public <T> Flux<T> eventsFromPosition(UUID eventStreamId, int fromPosition, FluxEventTransformer<T> transformer) {
+    public Flux<Event> eventsFromPosition(UUID eventStreamId, int fromPosition) {
 
         Assert.notNull(eventStreamId, "event stream identifier, cannot be null");
         Assert.isTrue(fromPosition >= 0, "From position must be positive");
@@ -86,13 +85,12 @@ public class InMemoryEventStore implements EventStore {
             return Flux.error(new StreamNotFoundException("Stream {0} cannot be found.", eventStreamId.toString()));
         } else {
             return this.streams.get(eventStreamId)
-                    .eventsFromPosition(fromPosition)
-                    .transform(transformer);
+                    .eventsFromPosition(fromPosition);
         }
     }
 
     @Override
-    public <T> Mono<T> eventAtPosition(UUID eventStreamId, int atPosition, MonoEventTransformer<T> transformer) {
+    public Mono<Event> eventAtPosition(UUID eventStreamId, int atPosition) {
 
         Assert.notNull(eventStreamId, "event stream identifier, cannot be null");
         Assert.isTrue(atPosition >= 0, "From position must be positive");
@@ -101,14 +99,13 @@ public class InMemoryEventStore implements EventStore {
                 return Mono.error(new StreamNotFoundException("Stream {0} cannot be found.", eventStreamId.toString()));
             } else {
                 return this.streams.get(eventStreamId)
-                        .eventAtPosition(atPosition)
-                        .transform(transformer);
+                        .eventAtPosition(atPosition);
             }
     }
 
     @Override
-    public Flux<EventStream> listEventStreams() {
-        return Flux.fromIterable(this.streams.values()).map( s -> s.getEventStream());
+    public Flux<UUID> listEventStreams() {
+        return Flux.fromIterable(this.streams.values()).map( s -> s.getEventStreamId());
     }
 
 
