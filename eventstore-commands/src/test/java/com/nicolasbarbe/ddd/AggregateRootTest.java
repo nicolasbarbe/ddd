@@ -46,10 +46,6 @@ public class AggregateRootTest {
         applyEventCounter = 0;
     }
 
-    @After
-    public void tearDown() throws Exception {
-    }
-
     @Test
     public void applyOneEvent() {
         // Given
