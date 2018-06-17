@@ -15,11 +15,14 @@ import org.apache.commons.logging.LogFactory;
 
 import reactor.core.publisher.Flux;
 
+/**
+ * An aggregate not yet saved should not have any uuid (null)
+ */
 public abstract class AggregateRoot {
 
     private static final Log logger = LogFactory.getLog(AggregateRoot.class);
 
-    private List<Event<?>> changes;
+    private List<Event<?>>   changes;
     private UUID             aggregateId;
 
     // aggregate original version once re-hydrated from the event stream
@@ -32,6 +35,7 @@ public abstract class AggregateRoot {
         this(null);
     }
 
+    // todo make it private so nobody can instantiate an aggregate with a uuid
     public AggregateRoot(UUID uuid) {
         changes         = new ArrayList<>();
         aggregateId     = uuid;

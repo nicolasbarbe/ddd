@@ -51,12 +51,13 @@ public abstract class AbstractEventSourcedRepository<T extends AggregateRoot> im
                 eventStore.appendToEventStream(
                         aggId,
                         aggregate.listChanges(),
-                        aggregate.getOriginalVersion() + 1))
+                        aggregate.getOriginalVersion() + 1).log())
                 .doOnSuccess(count -> aggregate.markChangesAsCommitted());
     }
 
     @Override
-    public Mono<T> findById(UUID aggregateId) {
+    public Mono<T>
+    findById(UUID aggregateId) {
         return eventStore.eventsFromPosition(aggregateId, 0)
                 .reduce(newInstance(aggregateId), (aggregate, event) -> (T) aggregate.loadFromHistory(event));
     }
@@ -67,7 +68,7 @@ public abstract class AbstractEventSourcedRepository<T extends AggregateRoot> im
 
     protected T newInstance(UUID uuid) {
         try {
-            return this.aggregateClass.getConstructor(UUID.class).newInstance(uuid);
+            return this.aggregateClass.getConstructor().newInstance();
         } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }

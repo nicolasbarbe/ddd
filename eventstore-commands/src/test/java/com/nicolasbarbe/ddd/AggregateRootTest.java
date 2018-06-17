@@ -116,7 +116,7 @@ public class AggregateRootTest {
         TestEvent newEvent = new TestEvent();
 
         // When
-        eventsFromHistory.forEach( e -> aggregate.loadFromHistory(e));
+        eventsFromHistory.forEach( aggregate::loadFromHistory);
         aggregate.apply(newEvent);
 
         // Then
