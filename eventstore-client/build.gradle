@@ -15,6 +15,9 @@ dependencies {
 	testCompileOnly('org.projectlombok:lombok')
 	testCompile('junit:junit')
 	testCompile('org.springframework:spring-test')
+	testCompile('org.mockito:mockito-core')
 	testCompile('io.projectreactor:reactor-test')
+
+
 
 }
