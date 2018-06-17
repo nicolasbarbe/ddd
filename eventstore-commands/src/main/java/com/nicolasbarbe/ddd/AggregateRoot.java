@@ -66,7 +66,6 @@ public abstract class AggregateRoot {
                             Timestamp.now())
                             .data(event)
                             .build());
-            this.version++;
             logger.info("Event " + event + " sent.");
         }
         return this;
@@ -77,7 +76,8 @@ public abstract class AggregateRoot {
             if(method.isAnnotationPresent(EventHandler.class) && method.getParameters()[0].getType() == event.getClass()) {
                 try {
                     method.setAccessible(true);
-                    return method.invoke(this, event);
+                    method.invoke(this, event);
+                    return event;
                 } catch (IllegalAccessException e) {
                     logger.error("Event handler " + method.getName() + " is not accessible", e);
                     throw new IllegalArgumentException(e);
