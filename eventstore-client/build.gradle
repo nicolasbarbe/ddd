@@ -1,11 +1,20 @@
 
 dependencies {
-//	compile('com.squareup:javapoet:1.10.0')
-	
+
 	compileOnly('org.projectlombok:lombok')
-	compile('org.springframework.boot:spring-boot-starter-webflux')
+	compile('org.springframework:spring-core')
+	compile('org.springframework:spring-beans')
+	compile('org.springframework:spring-context')
+	compile('org.springframework:spring-web')
+	compile('org.springframework:spring-webflux')
+
+	compile('com.fasterxml.jackson.core:jackson-databind')
+
+	compile('io.projectreactor.ipc:reactor-netty')
 	
 	testCompileOnly('org.projectlombok:lombok')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('junit:junit')
+	testCompile('org.springframework:spring-test')
 	testCompile('io.projectreactor:reactor-test')
+
 }

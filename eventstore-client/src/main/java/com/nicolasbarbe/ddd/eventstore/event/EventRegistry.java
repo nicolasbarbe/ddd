@@ -15,15 +15,17 @@ import java.util.Set;
 /**
  * Description
  */
-@Component()
+@Component
 public class EventRegistry {
     
     private Map<String, Class> registry;
 
     public EventRegistry(@Value("${eventsource.events.package}") String basePackage, ApplicationContext context) {
-        Assert.notNull(basePackage, "eventsource.events.package property must be set.");
 
         this.registry = new HashMap<>(10);
+
+        Assert.notNull(basePackage, "eventsource.events.package property must be set.");
+        Assert.notNull(context, "Application context cannot be null.");
 
         ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.setEnvironment(context.getEnvironment());
@@ -39,7 +41,7 @@ public class EventRegistry {
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Cannot load class from the classpath.", e);
             }
-            register(eventClass);
+            this.registry.putIfAbsent(buildEventId(eventClass), eventClass);
         }
     }
 
@@ -54,9 +56,5 @@ public class EventRegistry {
     public static String buildEventId(Class eventClass) {
         String simpleClassName = eventClass.getSimpleName();
         return simpleClassName.substring(0,1).toLowerCase() + simpleClassName.substring(1);
-    }
-
-    public void register(Class eventClass) {
-        this.registry.putIfAbsent(buildEventId(eventClass), eventClass);
     }
 }
