@@ -17,20 +17,11 @@ import static org.junit.Assert.*;
  */
 public class AggregateRootTest {
 
-    protected AggregateRoot aggregate;
-
-    protected int applyEventCounter;
+    protected TestAggregate aggregate;
 
     @Before
     public void setUp() throws Exception {
-        aggregate = new AggregateRoot() {
-
-            @EventHandler
-            protected void handle(TestEvent event) {
-                applyEventCounter++;
-            }
-        };
-        applyEventCounter = 0;
+        aggregate = new TestAggregate();
     }
 
     @Test
@@ -48,7 +39,7 @@ public class AggregateRootTest {
 
         assertEquals(0, aggregate.getVersion());
         assertEquals(-1, aggregate.getOriginalVersion());
-        assertEquals(1, applyEventCounter);
+        assertEquals(1, aggregate.getApplyEventCounter());
     }
 
     @Test
@@ -67,7 +58,7 @@ public class AggregateRootTest {
 
         assertEquals(-1, aggregate.getVersion());
         assertEquals(-1, aggregate.getOriginalVersion());
-        assertEquals(0, applyEventCounter);
+        assertEquals(0, aggregate.getApplyEventCounter());
     }
 
     @Test
@@ -87,7 +78,7 @@ public class AggregateRootTest {
 
         assertEquals(2, aggregate.getVersion());
         assertEquals(-1, aggregate.getOriginalVersion());
-        assertEquals(3, applyEventCounter);
+        assertEquals(3, aggregate.getApplyEventCounter());
     }
 
     @Test
@@ -109,7 +100,7 @@ public class AggregateRootTest {
 
         assertEquals(2, aggregate.getVersion());
         assertEquals(2, aggregate.getOriginalVersion());
-        assertEquals(3, applyEventCounter);
+        assertEquals(3, aggregate.getApplyEventCounter());
     }
 
     @Test
@@ -135,7 +126,7 @@ public class AggregateRootTest {
 
         assertEquals(3, aggregate.getVersion());
         assertEquals(2, aggregate.getOriginalVersion());
-        assertEquals(4, applyEventCounter);
+        assertEquals(4, aggregate.getApplyEventCounter());
     }
 
     @Test
@@ -155,7 +146,7 @@ public class AggregateRootTest {
 
         assertEquals(0, aggregate.getVersion());
         assertEquals(0, aggregate.getOriginalVersion());
-        assertEquals(1, applyEventCounter);
+        assertEquals(1, aggregate.getApplyEventCounter());
     }
 
 
