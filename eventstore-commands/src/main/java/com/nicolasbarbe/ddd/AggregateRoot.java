@@ -13,10 +13,8 @@ import com.nicolasbarbe.ddd.eventstore.event.Timestamp;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import lombok.Getter;
 import reactor.core.publisher.Flux;
 
-@Getter
 public abstract class AggregateRoot {
 
     private static final Log logger = LogFactory.getLog(AggregateRoot.class);
@@ -45,30 +43,32 @@ public abstract class AggregateRoot {
         return Flux.fromIterable(changes);
     }
 
-//    public void markChangesAsCommited()
-//    {
-//        changes.clear();
-//    }
-
-    public <T> AggregateRoot applyFromHistory(Event<T> event) {
-        invokeEventHandler(event.getData());
-        this.version         = event.getVersion();
+    public void markChangesAsCommitted() {
+        changes.clear();
         this.originalVersion = this.version;
+    }
+
+    public <T> AggregateRoot
+    loadFromHistory(Event<T> event) {
+        if( null != invokeEventHandler(event.getData()) ) {
+            this.version = event.getVersion();
+            this.originalVersion = this.version;
+        }
         return this;
     }
-    
+
 
     public <T> AggregateRoot apply(T event) {
-        invokeEventHandler(event);
-        this.changes.add(
-                Event.<T>builder(
-                        ++version,
-                        Timestamp.now())
-                        .data(event)
-                .build());
-
-        logger.info("Event " + event + " sent.");
-
+        if( null != invokeEventHandler(event) ) {
+            this.changes.add(
+                    Event.<T>builder(
+                            ++version,
+                            Timestamp.now())
+                            .data(event)
+                            .build());
+            this.version++;
+            logger.info("Event " + event + " sent.");
+        }
         return this;
     }
 
@@ -90,4 +90,17 @@ public abstract class AggregateRoot {
         logger.warn("No event handler found for " + event.getClass().getName());
         return null;
     }
+    
+    public UUID getAggregateId() {
+        return aggregateId;
+    }
+
+    public int getOriginalVersion() {
+        return originalVersion;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
 }

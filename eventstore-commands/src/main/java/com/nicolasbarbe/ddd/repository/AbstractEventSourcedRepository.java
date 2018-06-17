@@ -51,13 +51,14 @@ public abstract class AbstractEventSourcedRepository<T extends AggregateRoot> im
                 eventStore.appendToEventStream(
                         aggId,
                         aggregate.listChanges(),
-                        aggregate.getOriginalVersion() + 1));
+                        aggregate.getOriginalVersion() + 1))
+                .doOnSuccess(count -> aggregate.markChangesAsCommitted());
     }
 
     @Override
     public Mono<T> findById(UUID aggregateId) {
         return eventStore.eventsFromPosition(aggregateId, 0)
-                .reduce(newInstance(aggregateId), (aggregate, event) -> (T) aggregate.applyFromHistory(event));
+                .reduce(newInstance(aggregateId), (aggregate, event) -> (T) aggregate.loadFromHistory(event));
     }
 
     public Class<T> getAggregateClass() {
