@@ -2,10 +2,7 @@ package com.nicolasbarbe.ddd;
 
 import com.nicolasbarbe.ddd.event.EventHandler;
 import com.nicolasbarbe.ddd.eventstore.event.Event;
-import com.nicolasbarbe.ddd.eventstore.event.EventRegistry;
 import com.nicolasbarbe.ddd.eventstore.event.Timestamp;
-import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import reactor.test.StepVerifier;
@@ -22,17 +19,7 @@ public class AggregateRootTest {
 
     protected AggregateRoot aggregate;
 
-    class TestEvent {
-        UUID id = UUID.randomUUID();
-    };
-
-    protected String eventTypeId = EventRegistry.buildEventId(TestEvent.class);
-
     protected int applyEventCounter;
-
-
-    public AggregateRootTest() {
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -56,7 +43,7 @@ public class AggregateRootTest {
 
         // Then
         StepVerifier.create(aggregate.listChanges())
-                .expectNextMatches( e -> e.getData().equals(event) && e.getVersion()==0 && e.getEventType().equals(eventTypeId))
+                .expectNextMatches( e -> e.getData().equals(event) && e.getVersion()==0 && e.getEventType().equals(TestEvent.eventTypeId))
                 .verifyComplete();
 
         assertEquals(0, aggregate.getVersion());
@@ -93,9 +80,9 @@ public class AggregateRootTest {
 
         // Then
         StepVerifier.create(aggregate.listChanges())
-                .expectNextMatches( e -> e.getData().equals(events.get(0)) && e.getVersion()==0 && e.getEventType().equals(eventTypeId))
-                .expectNextMatches( e -> e.getData().equals(events.get(1)) && e.getVersion()==1 && e.getEventType().equals(eventTypeId))
-                .expectNextMatches( e -> e.getData().equals(events.get(2)) && e.getVersion()==2 && e.getEventType().equals(eventTypeId))
+                .expectNextMatches( e -> e.getData().equals(events.get(0)) && e.getVersion()==0 && e.getEventType().equals(TestEvent.eventTypeId))
+                .expectNextMatches( e -> e.getData().equals(events.get(1)) && e.getVersion()==1 && e.getEventType().equals(TestEvent.eventTypeId))
+                .expectNextMatches( e -> e.getData().equals(events.get(2)) && e.getVersion()==2 && e.getEventType().equals(TestEvent.eventTypeId))
                 .verifyComplete();
 
         assertEquals(2, aggregate.getVersion());
@@ -143,7 +130,7 @@ public class AggregateRootTest {
 
         // Then
         StepVerifier.create(aggregate.listChanges())
-                .expectNextMatches( e -> e.getData().equals(newEvent) && e.getVersion()==3 && e.getEventType().equals(eventTypeId))
+                .expectNextMatches( e -> e.getData().equals(newEvent) && e.getVersion()==3 && e.getEventType().equals(TestEvent.eventTypeId))
                 .verifyComplete();
 
         assertEquals(3, aggregate.getVersion());
