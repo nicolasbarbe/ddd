@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventstore-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eventstore
+  template:
+    metadata:
+      labels:
+        app: eventstore
+    spec:
+      containers:
+      - name: eventstore
+        image: com.nicolasbarbe/eventstore-service:0.0.1-SNAPSHOT
+        ports:
+        - containerPort: 8080
+        
