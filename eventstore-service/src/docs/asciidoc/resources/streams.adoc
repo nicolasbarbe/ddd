@@ -1,0 +1,47 @@
+== Streams
+
+The `streams` resource is an infinite and immutable stream of events. Events cannot be modified once appended to the stream.
+
+=== Create a stream
+A stream can be created issuing a `POST` request to the `/streams` endpoint.
+
+operation::createEventStream[snippets='curl-request,http-request']
+
+The EventStore allocates the corresponding resources internally and returns the stream unique identifier:
+
+operation::createEventStream[snippets='http-response']
+
+=== List all the streams
+A `GET` request to the `/stream` endpoint with no parameters returns the list of available streams.
+
+operation::listOfStreams[snippets='curl-request,http-request,http-response']
+
+=== Fetch events from a stream
+A `GET` request with a path parameter of the stream identifier returns a stream of events.
+
+operation::fetchSomeEventsFromStream[snippets='path-parameters']
+
+This request supports the following headers:
+
+operation::fetchSomeEventsFromStream[snippets='request-headers']
+
+It returns a list of events defined by the following attributes:
+
+operation::fetchSomeEventsFromStream[snippets='response-fields']
+
+Here is an example:
+
+operation::fetchSomeEventsFromStream[snippets='curl-request,http-request,http-response']
+
+=== Fetch a specific event at a given position
+
+It is possible to fetch a specific event issuing a `GET` request with the following path parameters:
+
+operation::eventAtPosition[snippets='path-parameters']
+
+Here is an example:
+
+operation::eventAtPosition[snippets='curl-request,http-request,http-response']
+
+=== Append events to an existing stream
+A `POST` request with a path parameter of the stream identifier appends the events present in the request body in the event stream.

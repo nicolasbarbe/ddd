@@ -39,11 +39,12 @@ public class Handlers {
     public Mono<ServerResponse> appendToEventStream(ServerRequest request) {
         UUID streamId = UUID.fromString(request.pathVariable("streamId"));
         int streamPosition = toInt(HttpHeaderAttributes.ES_StreamPosition, getRequestHeaderAttribute(HttpHeaderAttributes.ES_StreamPosition, request.headers(), true));
-        
-        return eventstore.appendToEventStream(streamId, request.bodyToFlux(Event.class), streamPosition)
-                .then( ServerResponse.ok().build() )
-                .onErrorResume(ConcurrentModificationException.class, error -> HttpResponse.badRequest(error.getMessage() ));
+
+        return ServerResponse.created(URI.create("/streams/" + streamId.toString()))
+                .body(eventstore.appendToEventStream(streamId, request.bodyToFlux(Event.class), streamPosition)
+                        .onErrorMap(ConcurrentModificationException.class, e -> new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage())), Long.class);
     }
+
 
     public Mono<ServerResponse> listEventStreams(ServerRequest request) {
         return ServerResponse.ok()

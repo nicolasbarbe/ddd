@@ -29,7 +29,7 @@ public class Router {
                 .andRoute( GET(  "/streams/{streamId}/{position}"),                      handlers::eventAtPosition)
 
                 .andRoute( PATCH( "/streams/{streamId}/{position}").and(accept(APPLICATION_JSON)), handlers::streamEndpointIsImmutable)
-                .andRoute( DELETE("/streams/{streamId}/{position}"),                                         handlers::streamEndpointIsImmutable)
+                .andRoute( DELETE("/streams/{streamId}/{position}"),                               handlers::streamEndpointIsImmutable)
                 .andRoute( PUT(   "/streams/{streamId}/{position}").and(accept(APPLICATION_JSON)), handlers::streamEndpointIsImmutable);
     }
 }
